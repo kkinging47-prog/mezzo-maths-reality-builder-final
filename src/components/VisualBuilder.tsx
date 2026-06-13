@@ -1,5 +1,6 @@
 import { Project } from '../data/projects';
 import Bridge2DConstructionSite from './Bridge2DConstructionSite';
+import Playground2DConstructionSite from './Playground2DConstructionSite';
 
 type VisualBuilderProps = {
   project: Project;
@@ -20,6 +21,10 @@ const scenes: Record<string, string[]> = {
 export default function VisualBuilder({ project, completed, mode, feedback }: VisualBuilderProps) {
   if (project.id === 'footbridge-stream' && mode === '2d') {
     return <Bridge2DConstructionSite buildStage={completed} feedback={feedback} />;
+  }
+
+  if (project.id === 'school-playground-layout' && mode === '2d') {
+    return <Playground2DConstructionSite buildStage={completed} feedback={feedback} />;
   }
 
   const parts = scenes[project.id] ?? ['📐', '🧮', '🏗️', '✅'];
