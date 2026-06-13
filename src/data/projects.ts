@@ -37,7 +37,7 @@ export const worlds: World[] = [
   { id: 'ship-engineering', name: 'Ship Engineering Bay', tagline: 'Design river transport using capacity, time and distance.', icon: '⛴️', color: 'cyan', activeProjectId: 'ferry-river-crossing' },
   { id: 'robotics-arena', name: 'Robotics Arena', tagline: 'Program robots with coordinates, steps and logic.', icon: '🤖', color: 'green', activeProjectId: 'simple-cleaning-robot' },
   { id: 'farm-market', name: 'Farm & Market Maths', tagline: 'Use water, quantity and business maths to solve farm problems.', icon: '🌱', color: 'gold', activeProjectId: 'smart-irrigation-system' },
-  { id: 'space-lab', name: 'Space Mission Lab', tagline: 'Launch missions with data, height, mass and timing.', icon: '🚀', color: 'pink', activeProjectId: 'weather-balloon-launch' }
+  { id: 'space-lab', name: 'Smart Parking System Lab', tagline: 'Build automated car parks using area, sensors, counting and display logic.', icon: '🅿️', color: 'pink', activeProjectId: 'smart-car-parking-system' }
 ];
 
 export const projects: Project[] = [
@@ -140,14 +140,22 @@ export const projects: Project[] = [
     ]
   },
   {
-    id: 'weather-balloon-launch', worldId: 'space-lab', title: 'Launch a Weather Balloon', level: 'Beginner', status: 'active', age: 'Ages 10–15', description: 'Prepare a weather balloon mission using mass, height, speed and time.', maths: ['Time', 'Speed', 'Data', 'Multiplication'], tools: ['Balloon', 'Sensor box', 'Launch timer'],
+    id: 'smart-car-parking-system',
+    worldId: 'space-lab',
+    title: 'Build a Smart Car Parking System',
+    level: 'Beginner',
+    status: 'active',
+    age: 'Ages 9–14',
+    description: 'Students use area, division, multiplication, sensors, subtraction and display logic to build a realistic smart parking system with barriers and available-space counting.',
+    maths: ['Area', 'Division', 'Multiplication', 'Counting', 'Subtraction', 'Automation logic'],
+    tools: ['Measuring tape', 'Parking slot lines', 'Slot sensors', 'Smart counter', 'Display board', 'Entry barrier'],
     steps: [
-      { id: 1, title: 'Sensor Mass', question: 'A sensor weighs 2kg. Three sensors weigh how many kilograms?', answer: 6, unit: 'kg', hint: 'Multiply 2 by 3.', formula: '2 × 3', buildText: 'Sensors attach to the balloon payload.' },
-      { id: 2, title: 'Launch Rope', question: 'The rope is 5m long. Four ropes tied together give what length?', answer: 20, unit: 'm', hint: 'Multiply 5 by 4.', formula: '5 × 4', buildText: 'The launch rope extends.' },
-      { id: 3, title: 'Rise Speed', question: 'The balloon rises 3m every second. How high after 10 seconds?', answer: 30, unit: 'm', hint: 'Speed times time.', formula: '3 × 10', buildText: 'The balloon begins to rise.' },
-      { id: 4, title: 'Weather Readings', question: 'The sensor takes 6 readings per minute. How many readings in 5 minutes?', answer: 30, unit: 'readings', hint: 'Multiply 6 by 5.', formula: '6 × 5', buildText: 'Weather data fills the mission screen.' },
-      { id: 5, title: 'Signal Check', question: 'A signal covers 25m. Two signal boosters cover how many metres?', answer: 50, unit: 'm', hint: 'Multiply 25 by 2.', formula: '25 × 2', buildText: 'Signal boosters activate.' },
-      { id: 6, title: 'Mission Score', question: 'The mission has 5 tasks worth 20 points each. What is the total score?', answer: 100, unit: 'points', hint: 'Multiply 5 by 20.', formula: '5 × 20', buildText: 'The weather balloon mission launches successfully.' }
+      { id: 1, title: 'Measure the Parking Area', question: 'The parking area is 20 metres long and 10 metres wide. What is the area of the parking space?', answer: 200, unit: 'm²', hint: 'Area = length × width. So calculate 20 × 10.', formula: 'Area = 20 × 10', buildText: 'The parking area has been marked for construction.' },
+      { id: 2, title: 'Mark Parking Slots', question: 'Each parking slot is 5 metres long. If the parking area is 20 metres long, how many parking slots can fit in one row?', answer: 4, unit: 'slots', hint: 'Divide the total length by the length of one slot: 20 ÷ 5.', formula: 'Slots in one row = 20 ÷ 5', buildText: 'Four parking spaces have been marked clearly in the first row.' },
+      { id: 3, title: 'Count Total Parking Spaces', question: 'The car park has 2 rows. Each row has 4 parking slots. How many parking slots are there altogether?', answer: 8, unit: 'spaces', hint: 'Multiply the number of rows by the slots in each row: 2 × 4.', formula: 'Total spaces = 2 × 4', buildText: 'The full car park layout is complete with 8 spaces.' },
+      { id: 4, title: 'Install Slot Sensors', question: 'Each parking slot needs 1 sensor. If there are 8 parking slots, how many sensors are needed?', answer: 8, unit: 'sensors', hint: 'One sensor goes into each parking slot, so 8 spaces need 8 sensors.', formula: 'Sensors = 8 × 1', buildText: 'Sensors have been installed in all parking spaces.' },
+      { id: 5, title: 'Calculate Available Spaces', question: 'The car park has 8 spaces. If 5 cars are already parked, how many spaces are still available?', answer: 3, unit: 'spaces', hint: 'Subtract the parked cars from the total spaces: 8 − 5.', formula: 'Available spaces = 8 − 5', buildText: 'The system can now calculate available parking spaces.' },
+      { id: 6, title: 'Display Available Spaces', question: 'The display board must show the number of empty spaces. If there are 8 spaces and 6 cars are parked, what number should the board display?', answer: 2, unit: 'spaces', hint: 'Empty spaces = total spaces − parked cars. Calculate 8 − 6.', formula: 'Display number = 8 − 6', buildText: 'The display board, entry barrier and traffic light are connected. The parking system is ready for testing.' }
     ]
   }
 ];
