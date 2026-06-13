@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+
 type Bridge2DConstructionSiteProps = {
   buildStage: number;
   feedback?: string;
@@ -34,10 +36,19 @@ function House({ x, y, body, roof }: { x: number; y: number; body: string; roof:
   );
 }
 
-export default function Bridge2DConstructionSite({ buildStage, feedback, bridgeTested = false }: Bridge2DConstructionSiteProps) {
+export default function Bridge2DConstructionSite({ buildStage, feedback, bridgeTested }: Bridge2DConstructionSiteProps) {
   const stage = clampStage(buildStage);
+  const [localTested, setLocalTested] = useState(false);
+
+  useEffect(() => {
+    if (stage < 6) {
+      setLocalTested(false);
+    }
+  }, [stage]);
+
+  const tested = bridgeTested ?? localTested;
   const visibleFeedback = feedback && !feedback.includes('Not quite') ? feedback : encouragement[stage];
-  const stageSixTitle = bridgeTested ? 'Test Passed — Safe to Cross!' : 'Bridge Complete — Ready to Test!';
+  const stageSixTitle = tested ? 'Test Passed — Safe to Cross!' : 'Bridge Complete — Ready to Test!';
 
   return (
     <div className="bridge-construction-site" aria-label={`Footbridge construction site stage ${stage} of 6`}>
@@ -227,9 +238,9 @@ export default function Bridge2DConstructionSite({ buildStage, feedback, bridgeT
             <g>
               <rect x="154" y="203" width="592" height="136" rx="28" fill="#fef08a" opacity="0.45" className="bridge-success-glow" filter="url(#successGlow)" />
               <text x="450" y="76" textAnchor="middle" fill="#166534" fontSize="30" fontWeight="800">
-                {bridgeTested ? 'Bridge Test Passed — Safe to Cross!' : 'Bridge Complete — Ready to Test!'}
+                {tested ? 'Bridge Test Passed — Safe to Cross!' : 'Bridge Complete — Ready to Test!'}
               </text>
-              {bridgeTested && (
+              {tested && (
                 <g className="bridge-walker">
                   <circle cx="195" cy="250" r="11" fill="#7c3aed" />
                   <rect x="188" y="262" width="14" height="25" rx="6" fill="#2563eb" />
@@ -246,8 +257,18 @@ export default function Bridge2DConstructionSite({ buildStage, feedback, bridgeT
         {visibleFeedback}
       </p>
 
+      {stage === 6 && !tested && (
+        <button className="bridge-test-button" type="button" onClick={() => setLocalTested(true)}>
+          Test Bridge
+        </button>
+      )}
+
+      {stage === 6 && tested && (
+        <p className="bridge-test-note">The bridge test passed. The student is crossing from the left homes to the right homes.</p>
+      )}
+
       <style>{`
-        .bridge-construction-site{font-family:Inter,system-ui,sans-serif;color:#0f172a}.bridge-construction-header{display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:1rem}.bridge-construction-eyebrow{margin:0;color:#8fffd2;font-weight:800;font-size:.82rem;text-transform:uppercase;letter-spacing:.06em}.bridge-construction-site h3{margin:.2rem 0 0;font-size:clamp(1.25rem,3vw,2rem);color:#f8fafc}.bridge-construction-status{background:#0e7490;border:2px solid #67e8f9;border-radius:999px;padding:.65rem 1rem;font-weight:800;color:#ecfeff}.bridge-construction-status.complete{background:#dcfce7;border-color:#22c55e;color:#166534}.bridge-construction-canvas{background:#f0fdf4;border-radius:24px;overflow:hidden;border:4px solid #d9f99d;box-shadow:inset 0 0 0 1px rgba(15,23,42,.08)}.bridge-construction-canvas svg{display:block;width:100%;height:auto;min-height:330px}.river-ripples{animation:riverFlowDown 3.4s linear infinite}.bridge-guide{animation:bridgeDash 1.7s linear infinite}.bridge-pop{animation:bridgePopIn .55s ease-out both}.bridge-slide{animation:bridgeSlideIn .75s ease-out both}.bridge-plank{opacity:0;animation:bridgePlankDrop .45s ease-out forwards}.bridge-success-glow{animation:bridgeGlowPulse 1.6s ease-in-out infinite}.bridge-walker{animation:bridgeWalkAcross 4.8s ease-in-out infinite alternate}.bridge-construction-feedback{margin:1rem 0 0;background:#ecfeff;border:2px solid #67e8f9;border-radius:18px;padding:1rem;font-weight:800;color:#155e75}.bridge-construction-feedback.complete{background:#f0fdf4;border-color:#4ade80;color:#166534}@keyframes riverFlowDown{from{transform:translateY(-90px)}to{transform:translateY(90px)}}@keyframes bridgeDash{to{stroke-dashoffset:-64}}@keyframes bridgePopIn{from{opacity:0;transform:scale(.86);transform-origin:center}to{opacity:1;transform:scale(1)}}@keyframes bridgeSlideIn{from{opacity:0;transform:translateX(-620px)}to{opacity:1;transform:translateX(0)}}@keyframes bridgePlankDrop{from{opacity:0;transform:translateY(-22px)}to{opacity:1;transform:translateY(0)}}@keyframes bridgeGlowPulse{50%{opacity:.78}}@keyframes bridgeWalkAcross{from{transform:translateX(0)}to{transform:translateX(510px)}}@media (max-width:720px){.bridge-construction-header{align-items:flex-start;flex-direction:column}.bridge-construction-status{border-radius:16px}.bridge-construction-canvas svg{min-height:260px}}
+        .bridge-construction-site{font-family:Inter,system-ui,sans-serif;color:#0f172a}.bridge-construction-header{display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:1rem}.bridge-construction-eyebrow{margin:0;color:#8fffd2;font-weight:800;font-size:.82rem;text-transform:uppercase;letter-spacing:.06em}.bridge-construction-site h3{margin:.2rem 0 0;font-size:clamp(1.25rem,3vw,2rem);color:#f8fafc}.bridge-construction-status{background:#0e7490;border:2px solid #67e8f9;border-radius:999px;padding:.65rem 1rem;font-weight:800;color:#ecfeff}.bridge-construction-status.complete{background:#dcfce7;border-color:#22c55e;color:#166534}.bridge-construction-canvas{background:#f0fdf4;border-radius:24px;overflow:hidden;border:4px solid #d9f99d;box-shadow:inset 0 0 0 1px rgba(15,23,42,.08)}.bridge-construction-canvas svg{display:block;width:100%;height:auto;min-height:330px}.river-ripples{animation:riverFlowDown 3.4s linear infinite}.bridge-guide{animation:bridgeDash 1.7s linear infinite}.bridge-pop{animation:bridgePopIn .55s ease-out both}.bridge-slide{animation:bridgeSlideIn .75s ease-out both}.bridge-plank{opacity:0;animation:bridgePlankDrop .45s ease-out forwards}.bridge-success-glow{animation:bridgeGlowPulse 1.6s ease-in-out infinite}.bridge-walker{animation:bridgeWalkAcross 4.8s ease-in-out infinite alternate}.bridge-construction-feedback{margin:1rem 0 0;background:#ecfeff;border:2px solid #67e8f9;border-radius:18px;padding:1rem;font-weight:800;color:#155e75}.bridge-construction-feedback.complete{background:#f0fdf4;border-color:#4ade80;color:#166534}.bridge-test-button{margin-top:1rem;border:0;border-radius:999px;background:linear-gradient(135deg,#16a34a,#22c55e);color:white;font-weight:900;padding:.9rem 1.4rem;cursor:pointer;box-shadow:0 12px 24px rgba(22,163,74,.28)}.bridge-test-note{margin:.8rem 0 0;color:#dcfce7;font-weight:800}@keyframes riverFlowDown{from{transform:translateY(-90px)}to{transform:translateY(90px)}}@keyframes bridgeDash{to{stroke-dashoffset:-64}}@keyframes bridgePopIn{from{opacity:0;transform:scale(.86);transform-origin:center}to{opacity:1;transform:scale(1)}}@keyframes bridgeSlideIn{from{opacity:0;transform:translateX(-620px)}to{opacity:1;transform:translateX(0)}}@keyframes bridgePlankDrop{from{opacity:0;transform:translateY(-22px)}to{opacity:1;transform:translateY(0)}}@keyframes bridgeGlowPulse{50%{opacity:.78}}@keyframes bridgeWalkAcross{from{transform:translateX(0)}to{transform:translateX(510px)}}@media (max-width:720px){.bridge-construction-header{align-items:flex-start;flex-direction:column}.bridge-construction-status{border-radius:16px}.bridge-construction-canvas svg{min-height:260px}}
       `}</style>
     </div>
   );
