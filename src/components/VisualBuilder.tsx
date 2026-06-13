@@ -1,5 +1,6 @@
 import { Project } from '../data/projects';
 import Bridge2DConstructionSite from './Bridge2DConstructionSite';
+import Bridge3DConstructionSite from './Bridge3DConstructionSite';
 import Playground2DConstructionSite from './Playground2DConstructionSite';
 import Ferry2DConstructionSite from './Ferry2DConstructionSite';
 import Irrigation2DConstructionSite from './Irrigation2DConstructionSite';
@@ -24,6 +25,10 @@ const scenes: Record<string, string[]> = {
 };
 
 export default function VisualBuilder({ project, completed, mode, feedback }: VisualBuilderProps) {
+  if (project.id === 'footbridge-stream' && mode === '3d') {
+    return <Bridge3DConstructionSite buildStage={completed} feedback={feedback} />;
+  }
+
   if (project.id === 'footbridge-stream' && mode === '2d') {
     return <Bridge2DConstructionSite buildStage={completed} feedback={feedback} />;
   }
