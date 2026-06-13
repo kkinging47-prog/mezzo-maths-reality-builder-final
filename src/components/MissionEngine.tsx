@@ -157,13 +157,14 @@ export default function MissionEngine({ project }: MissionEngineProps) {
         .mission-grid.bridge-3d-stacked{grid-template-columns:1fr;max-width:1380px;margin:0 auto;align-items:stretch;gap:1rem}
         .mission-grid.bridge-3d-stacked .mission-panel{order:1}
         .mission-grid.bridge-3d-stacked .builder-panel{order:2;width:100%}
-        .mission-grid.bridge-3d-stacked .question-card:not(.complete-frame){display:grid;grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr);column-gap:1rem;align-items:end;padding:1rem}
+        .mission-grid.bridge-3d-stacked .question-card{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr);column-gap:1rem;align-items:end;padding:1rem;min-height:220px}
         .mission-grid.bridge-3d-stacked .question-card>.eyebrow,.mission-grid.bridge-3d-stacked .question-card>h3,.mission-grid.bridge-3d-stacked .question-card>p,.mission-grid.bridge-3d-stacked .question-card>.formula-box,.mission-grid.bridge-3d-stacked .question-card>.feedback{grid-column:1/-1}
         .mission-grid.bridge-3d-stacked .question-card .answer-row{margin-top:0}
         .mission-grid.bridge-3d-stacked .question-card .action-row{margin-top:0;justify-content:flex-end}
-        .mission-grid.bridge-3d-stacked .question-card.complete-frame{padding:1rem 1.15rem;background:linear-gradient(135deg,rgba(220,252,231,.96),rgba(239,246,255,.96));border:1px solid rgba(16,185,129,.22)}
+        .mission-grid.bridge-3d-stacked .question-card.complete-frame{background:linear-gradient(135deg,rgba(220,252,231,.96),rgba(239,246,255,.96));border:1px solid rgba(16,185,129,.22)}
+        .mission-grid.bridge-3d-stacked .question-card.complete-frame .action-row{grid-column:1/-1;justify-content:flex-end;margin-top:.25rem}
         .mission-grid.bridge-3d-stacked .question-card.complete-frame h3{color:#065f46}.mission-grid.bridge-3d-stacked .complete-message{background:white;border-color:rgba(16,185,129,.2);color:#166534}
-        @media (max-width:840px){.mission-grid.bridge-3d-stacked .question-card:not(.complete-frame){grid-template-columns:1fr}.mission-grid.bridge-3d-stacked .question-card .action-row{justify-content:flex-start;margin-top:1rem}}
+        @media (max-width:840px){.mission-grid.bridge-3d-stacked .question-card{grid-template-columns:1fr;min-height:auto}.mission-grid.bridge-3d-stacked .question-card .action-row{justify-content:flex-start;margin-top:1rem}.mission-grid.bridge-3d-stacked .question-card.complete-frame .action-row{justify-content:flex-start}}
       `}</style>
     </div>
   );
