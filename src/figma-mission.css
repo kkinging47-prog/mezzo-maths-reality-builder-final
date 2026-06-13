@@ -1,0 +1,409 @@
+.world-adventure-shell {
+  min-height: calc(100vh - 5rem);
+  background: #eef4ff;
+  color: #172033;
+}
+
+.student-topbar-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: .85rem;
+  padding: .9rem clamp(1rem, 3vw, 2rem);
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, .08);
+}
+
+.back-circle {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #172033;
+  font-size: 1.45rem;
+  font-weight: 900;
+}
+
+.student-topbar-title h1 {
+  margin: 0;
+  font-size: clamp(1.2rem, 2vw, 1.55rem);
+  color: #172033;
+}
+
+.student-topbar-title p {
+  margin: .15rem 0 0;
+  color: #475569;
+}
+
+.student-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+}
+
+.topbar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.35rem;
+  padding: .55rem .95rem;
+  border-radius: .8rem;
+  color: white;
+  font-weight: 900;
+  box-shadow: 0 10px 24px rgba(37, 99, 235, .18);
+}
+
+.topbar-btn.dashboard { background: #2d7bf4; }
+.topbar-btn.logout { background: #ef233c; }
+
+.world-adventure-content {
+  padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 3vw, 2rem);
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+.world-adventure-content h2 {
+  margin: 0 0 1.6rem;
+  font-size: clamp(1.7rem, 3vw, 2.2rem);
+  color: #111827;
+  letter-spacing: -.03em;
+}
+
+.adventure-world-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.55rem;
+}
+
+.adventure-world-card {
+  overflow: hidden;
+  min-height: 420px;
+  display: grid;
+  grid-template-rows: 1.05fr .95fr;
+  border-radius: 1.15rem;
+  background: #ffffff;
+  box-shadow: 0 18px 38px rgba(15, 23, 42, .14);
+}
+
+.adventure-world-top {
+  position: relative;
+  overflow: hidden;
+  padding: 1.7rem;
+  color: white;
+}
+
+.adventure-world-top::after {
+  content: '';
+  position: absolute;
+  top: -3.5rem;
+  right: -3.5rem;
+  width: 9rem;
+  height: 9rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .14);
+}
+
+.adventure-world-card.blue .adventure-world-top { background: linear-gradient(135deg, #2d7bf4, #1d4ed8); }
+.adventure-world-card.purple .adventure-world-top { background: linear-gradient(135deg, #b344f4, #9b00e8); }
+.adventure-world-card.cyan .adventure-world-top { background: linear-gradient(135deg, #14b8c6, #0284a7); }
+.adventure-world-card.green .adventure-world-top { background: linear-gradient(135deg, #10b981, #069447); }
+.adventure-world-card.gold .adventure-world-top { background: linear-gradient(135deg, #f59e0b, #d66d00); }
+.adventure-world-card.pink .adventure-world-top { background: linear-gradient(135deg, #6366f1, #7c3aed); }
+
+.adventure-icon {
+  width: 4.6rem;
+  height: 4.6rem;
+  display: grid;
+  place-items: center;
+  margin-bottom: 1rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, .18);
+  font-size: 2.45rem;
+}
+
+.adventure-world-top h3 {
+  margin: 0 0 .7rem;
+  font-size: clamp(1.3rem, 2vw, 1.7rem);
+}
+
+.adventure-world-top p {
+  margin: 0;
+  max-width: 28rem;
+  color: rgba(255, 255, 255, .94);
+  line-height: 1.55;
+  font-weight: 600;
+}
+
+.adventure-world-bottom {
+  padding: 1.3rem 1.45rem 1.45rem;
+  display: grid;
+  gap: .45rem;
+  color: #111827;
+}
+
+.active-label,
+.concept-label {
+  color: #475569;
+  font-size: .9rem;
+}
+
+.concept-chip-row,
+.ready-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .45rem;
+}
+
+.concept-chip-row span {
+  padding: .33rem .65rem;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #334155;
+  font-size: .8rem;
+}
+
+.ready-chip-row span {
+  padding: .33rem .65rem;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #059669;
+  font-size: .82rem;
+  font-weight: 800;
+}
+
+.mission-start-btn {
+  margin-top: .55rem;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: .8rem 1rem;
+  border-radius: .95rem;
+  background: linear-gradient(135deg, #2d5bff, #b000f5);
+  color: white;
+  font-weight: 900;
+}
+
+.figma-mission-grid {
+  grid-template-columns: minmax(0, 1.22fr) minmax(300px, .64fr);
+  gap: 1.5rem;
+  align-items: stretch;
+}
+
+.figma-mission-grid .builder-panel {
+  order: 1;
+  padding: 1rem;
+  border-radius: 1.35rem;
+  background: #111b2d;
+  border: 1px solid rgba(148, 163, 184, .3);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+}
+
+.figma-mission-grid .mission-panel {
+  order: 2;
+  padding: 1rem;
+  border-radius: 1.35rem;
+  background: #101827;
+  border: 1px solid rgba(148, 163, 184, .3);
+}
+
+.mission-tasks-heading h2 {
+  margin: 0 0 .65rem;
+  color: #ffffff;
+  font-size: clamp(1.35rem, 2vw, 1.8rem);
+}
+
+.mission-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .45rem;
+  margin-bottom: 1rem;
+}
+
+.mission-chip-row span {
+  padding: .32rem .75rem;
+  border-radius: 999px;
+  background: #1f2d44;
+  color: #67e8f9;
+  font-size: .8rem;
+}
+
+.figma-mission-grid .step-list {
+  display: grid;
+  gap: .75rem;
+  margin: 0 0 1rem;
+}
+
+.figma-mission-grid .step-dot {
+  width: 100%;
+  height: auto;
+  min-height: 3.45rem;
+  display: flex;
+  align-items: center;
+  gap: .72rem;
+  padding: .8rem .95rem;
+  text-align: left;
+  border-radius: .9rem;
+  background: #1d2a3f;
+  border: 1px solid rgba(148, 163, 184, .26);
+  color: #ffffff;
+}
+
+.figma-mission-grid .step-dot.current {
+  border-color: #08d9ff;
+  background: #0b4255;
+}
+
+.figma-mission-grid .step-dot.done {
+  border-color: rgba(16, 185, 129, .58);
+  background: rgba(16, 185, 129, .16);
+  color: #d1fae5;
+}
+
+.task-bullet {
+  width: .85rem;
+  height: .85rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #67e8f9, #8b5cf6);
+  box-shadow: 0 0 18px rgba(103, 232, 249, .45);
+  flex: 0 0 auto;
+}
+
+.task-label {
+  font-weight: 850;
+  line-height: 1.2;
+}
+
+.figma-mission-grid .question-card {
+  background: #1d2a3f;
+  border: 1px solid rgba(148, 163, 184, .18);
+  border-radius: 1rem;
+  padding: 1.15rem;
+}
+
+.figma-mission-grid .question-card h3 {
+  color: white;
+  font-size: 1.2rem;
+}
+
+.figma-mission-grid .question-card p {
+  color: #e2e8f0;
+  font-weight: 700;
+}
+
+.figma-mission-grid .answer-row {
+  grid-template-columns: 1fr;
+  gap: .45rem;
+}
+
+.figma-mission-grid .answer-row input {
+  background: #020617;
+  border-color: rgba(148, 163, 184, .36);
+  color: #ffffff;
+  border-radius: 999px;
+}
+
+.figma-mission-grid .answer-row em {
+  display: none;
+}
+
+.figma-mission-grid .action-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: .65rem;
+  margin-top: .9rem;
+}
+
+.figma-mission-grid .btn-primary {
+  background: #00c884;
+  box-shadow: none;
+  color: #04111f;
+}
+
+.figma-mission-grid .btn-ghost {
+  background: #ffbe0b;
+  border: 0;
+  color: #04111f;
+}
+
+.figma-mission-grid .mode-switcher {
+  display: flex;
+  gap: .7rem;
+  margin-bottom: 1rem;
+}
+
+.figma-mission-grid .mode-switcher button {
+  flex: unset;
+  padding: .65rem 1rem;
+  border-radius: 999px;
+  background: #1d2a3f;
+  color: white;
+  border: 1px solid rgba(148, 163, 184, .16);
+}
+
+.figma-mission-grid .mode-switcher button.selected {
+  background: #05c7e8;
+  color: white;
+}
+
+.figma-mission-grid .visual-builder {
+  min-height: 330px;
+  border-radius: 1rem;
+  background: #07344a;
+}
+
+.figma-mission-grid .tools-box {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: #1d2a3f;
+  border: 1px solid rgba(148, 163, 184, .18);
+}
+
+.figma-mission-grid .tools-box strong {
+  display: block;
+  margin-bottom: .75rem;
+  color: #b6c2d9;
+}
+
+.figma-mission-grid .tools-box span {
+  min-width: 9rem;
+  justify-content: center;
+  background: #142034;
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, .12);
+}
+
+.figma-mission-grid .tools-box .tool-unlocked {
+  background: rgba(16, 185, 129, .18);
+  color: #bbf7d0;
+}
+
+@media (max-width: 1040px) {
+  .adventure-world-grid,
+  .figma-mission-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .figma-mission-grid .builder-panel,
+  .figma-mission-grid .mission-panel {
+    order: initial;
+  }
+}
+
+@media (max-width: 760px) {
+  .student-topbar-card {
+    grid-template-columns: auto 1fr;
+  }
+
+  .student-topbar-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+
+  .adventure-world-grid {
+    grid-template-columns: 1fr;
+  }
+}
