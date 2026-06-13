@@ -34,6 +34,7 @@ export default function VisualBuilder({ project, completed, mode, feedback }: Vi
     return <Bridge2DConstructionSite buildStage={completed} feedback={feedback} />;
   }
 
+  // Keep the safe school playground on its dedicated real 3D construction scene.
   if (project.id === 'school-playground-layout' && mode === '3d') {
     return <Playground3DConstructionSite buildStage={completed} feedback={feedback} />;
   }
