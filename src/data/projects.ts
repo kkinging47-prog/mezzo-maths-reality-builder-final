@@ -36,7 +36,7 @@ export const worlds: World[] = [
   { id: 'smart-city', name: 'Smart City Designer', tagline: 'Plan safe spaces, roads and playgrounds with measurement.', icon: '🏙️', color: 'purple', activeProjectId: 'school-playground-layout' },
   { id: 'ship-engineering', name: 'Ship Engineering Bay', tagline: 'Design river transport using capacity, time and distance.', icon: '⛴️', color: 'cyan', activeProjectId: 'ferry-river-crossing' },
   { id: 'robotics-arena', name: 'Robotics Arena', tagline: 'Program robots with coordinates, steps and logic.', icon: '🤖', color: 'green', activeProjectId: 'simple-cleaning-robot' },
-  { id: 'farm-market', name: 'Farm & Market Maths', tagline: 'Solve profit, quantity and daily business decisions.', icon: '🍅', color: 'gold', activeProjectId: 'tomato-sales-market' },
+  { id: 'farm-market', name: 'Farm & Market Maths', tagline: 'Use water, quantity and business maths to solve farm problems.', icon: '🌱', color: 'gold', activeProjectId: 'smart-irrigation-system' },
   { id: 'space-lab', name: 'Space Mission Lab', tagline: 'Launch missions with data, height, mass and timing.', icon: '🚀', color: 'pink', activeProjectId: 'weather-balloon-launch' }
 ];
 
@@ -110,6 +110,25 @@ export const projects: Project[] = [
     ]
   },
   {
+    id: 'smart-irrigation-system',
+    worldId: 'farm-market',
+    title: 'Build a Smart Irrigation System',
+    level: 'Beginner',
+    status: 'active',
+    age: 'Ages 9–14',
+    description: 'Students use area, percentages, multiplication, addition and division to build an automatic watering system for a school garden.',
+    maths: ['Area', 'Moisture percentage', 'Multiplication', 'Addition', 'Division', 'Water planning'],
+    tools: ['Measuring tape', 'Soil moisture sensor', 'Water tank', 'Main pipe', 'Sprinklers', 'Smart controller'],
+    steps: [
+      { id: 1, title: 'Measure the Garden Bed', question: 'The school garden bed is 10 metres long and 4 metres wide. What is the area of the garden bed?', answer: 40, unit: 'm²', hint: 'Area = length × width. So calculate 10 × 4.', formula: 'Area = 10 × 4', buildText: 'The garden bed has been marked and prepared for irrigation.' },
+      { id: 2, title: 'Check Soil Moisture', question: 'The soil moisture sensor reads 25%. The garden should be watered when moisture is below 40%. How many percentage points below 40% is the reading?', answer: 15, unit: 'percentage points', hint: 'Subtract the sensor reading from the watering level: 40 − 25.', formula: 'Dryness gap = 40 − 25', buildText: 'The soil moisture sensor has been installed and can detect dry soil.' },
+      { id: 3, title: 'Calculate Water Needed', question: 'Each square metre of the garden needs 2 litres of water. If the garden area is 40 square metres, how many litres of water are needed?', answer: 80, unit: 'litres', hint: 'Multiply the garden area by the water needed per square metre: 40 × 2.', formula: 'Water needed = 40 × 2', buildText: 'The water tank has been sized correctly for the garden.' },
+      { id: 4, title: 'Lay the Water Pipes', question: 'The main pipe is 10 metres long. Three smaller pipes are each 4 metres long. What is the total length of pipe needed?', answer: 22, unit: 'm', hint: 'Add the main pipe and the three smaller pipes: 10 + 4 + 4 + 4.', formula: 'Pipe length = 10 + 4 + 4 + 4', buildText: 'The water pipes have been laid across the garden rows.' },
+      { id: 5, title: 'Install Sprinklers', question: 'Each garden row needs 2 sprinklers. If there are 4 rows, how many sprinklers are needed?', answer: 8, unit: 'sprinklers', hint: 'Multiply the number of rows by sprinklers per row: 4 × 2.', formula: 'Sprinklers = 4 × 2', buildText: 'Sprinklers have been installed to water all the plants evenly.' },
+      { id: 6, title: 'Set the Watering Time', question: 'The system releases 10 litres of water every minute. If the garden needs 80 litres, how many minutes should the system water the garden?', answer: 8, unit: 'minutes', hint: 'Divide the total water needed by the water released each minute: 80 ÷ 10.', formula: 'Watering time = 80 ÷ 10', buildText: 'The smart controller, solar panel and automatic valve are connected. The system is ready for testing.' }
+    ]
+  },
+  {
     id: 'tomato-sales-market', worldId: 'farm-market', title: 'Calculate Tomato Sales at Market', level: 'Beginner', status: 'active', age: 'Ages 9–13', description: 'Run a tomato stall using cost, revenue, profit and quantities.', maths: ['Money', 'Profit', 'Multiplication', 'Subtraction'], tools: ['Market stall', 'Tomato baskets', 'Cash book'],
     steps: [
       { id: 1, title: 'Count Baskets', question: 'There are 8 baskets with 10 tomatoes each. How many tomatoes are there?', answer: 80, unit: 'tomatoes', hint: 'Multiply baskets by tomatoes per basket.', formula: '8 × 10', buildText: 'Tomato baskets appear on the market table.' },
@@ -133,7 +152,7 @@ export const projects: Project[] = [
   }
 ];
 
-export const comingSoonProjects = ['Railway Track Planner', 'Solar House Builder', 'Irrigation System Designer', 'Drone Delivery Route', 'Stadium Seating Planner', 'Water Tower Engineer'];
+export const comingSoonProjects = ['Railway Track Planner', 'Solar House Builder', 'Market Stall Profit Planner', 'Drone Delivery Route', 'Stadium Seating Planner', 'Water Tower Engineer'];
 
 export function findProject(projectId: string | undefined) {
   return projects.find((project) => project.id === projectId);
