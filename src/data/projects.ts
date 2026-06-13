@@ -80,14 +80,22 @@ export const projects: Project[] = [
     ]
   },
   {
-    id: 'ferry-river-crossing', worldId: 'ship-engineering', title: 'Design a Ferry for River Crossing', level: 'Beginner', status: 'active', age: 'Ages 10–14', description: 'Build a ferry plan using capacity, trips, cost and crossing time.', maths: ['Division', 'Multiplication', 'Time', 'Capacity'], tools: ['Ferry deck', 'Life jackets', 'Route clock'],
+    id: 'ferry-river-crossing',
+    worldId: 'ship-engineering',
+    title: 'Build a Ferry for River Crossing',
+    level: 'Beginner',
+    status: 'active',
+    age: 'Ages 10–14',
+    description: 'Students use measurement, area, multiplication, division and load capacity to build a safe ferry that carries people across a river.',
+    maths: ['Measurement', 'Area', 'Multiplication', 'Division', 'Load capacity'],
+    tools: ['Measuring tape', 'Landing docks', 'Floating platform', 'Passenger seats', 'Safety rails', 'Load limit sign'],
     steps: [
-      { id: 1, title: 'Passenger Capacity', question: 'A ferry carries 12 passengers per trip. How many passengers can it carry in 3 trips?', answer: 36, unit: 'passengers', hint: 'Multiply passengers per trip by trips.', formula: '12 × 3', buildText: 'The passenger deck expands.' },
-      { id: 2, title: 'Number of Trips', question: '48 students need to cross. If the ferry carries 12 per trip, how many trips are needed?', answer: 4, unit: 'trips', hint: 'Divide 48 by 12.', formula: '48 ÷ 12', buildText: 'The ferry route schedule appears.' },
-      { id: 3, title: 'Crossing Time', question: 'Each trip takes 15 minutes. How long will 4 trips take?', answer: 60, unit: 'minutes', hint: 'Multiply 4 by 15.', formula: '4 × 15', buildText: 'The route clock completes one hour.' },
-      { id: 4, title: 'Fuel Estimate', question: 'The ferry uses 5 litres of fuel per trip. How many litres for 4 trips?', answer: 20, unit: 'litres', hint: 'Multiply 5 by 4.', formula: '5 × 4', buildText: 'The fuel tank is filled.' },
-      { id: 5, title: 'Ticket Income', question: 'Each passenger pays 2 cedis. How much for 36 passengers?', answer: 72, unit: 'cedis', hint: 'Multiply 36 by 2.', formula: '36 × 2', buildText: 'The ticket counter records the income.' },
-      { id: 6, title: 'Safety Jackets', question: 'There must be 1 life jacket per passenger. For 12 passengers, how many jackets are needed?', answer: 12, unit: 'jackets', hint: 'One passenger needs one jacket.', formula: '12 × 1', buildText: 'Life jackets appear and the ferry is ready.' }
+      { id: 1, title: 'Measure the River Width', question: 'The river is 18 metres wide. The ferry rope must extend 2 metres beyond the river on each bank for tying. What total length of rope is needed?', answer: 22, unit: 'm', hint: 'Add the river width and the two extra tying lengths: 18 + 2 + 2.', formula: 'Rope length = 18 + 2 + 2', buildText: 'The river crossing line has been measured and marked from one bank to the other.' },
+      { id: 2, title: 'Build the Landing Docks', question: 'Each landing dock needs 6 wooden planks. If there is one dock on the left bank and one dock on the right bank, how many planks are needed altogether?', answer: 12, unit: 'planks', hint: 'There are 2 docks, and each dock needs 6 planks. Calculate 2 × 6.', formula: 'Dock planks = 2 × 6', buildText: 'Wooden landing docks have been built on both river banks.' },
+      { id: 3, title: 'Build the Ferry Platform', question: 'The ferry platform is 4 metres long and 3 metres wide. What is the area of the platform?', answer: 12, unit: 'm²', hint: 'Area = length × width. So calculate 4 × 3.', formula: 'Platform area = 4 × 3', buildText: 'The floating ferry platform has been built on the river.' },
+      { id: 4, title: 'Add Passenger Seats', question: 'The ferry will have 3 rows of seats. Each row can take 2 passengers. How many passengers can sit on the ferry?', answer: 6, unit: 'passengers', hint: 'Multiply the number of rows by the passengers per row: 3 × 2.', formula: 'Seats = 3 × 2', buildText: 'Passenger seats have been installed on the ferry platform.' },
+      { id: 5, title: 'Add Safety Rails', question: 'The ferry needs rails on 4 sides. Each side needs 2 rail posts. How many rail posts are needed in total?', answer: 8, unit: 'posts', hint: 'Multiply the 4 sides by 2 posts for each side: 4 × 2.', formula: 'Rail posts = 4 × 2', buildText: 'Safety rails have been added around the ferry.' },
+      { id: 6, title: 'Check Safe Load', question: 'The ferry can carry a maximum of 480 kg. If each passenger is counted as 60 kg, what is the maximum number of passengers the ferry can safely carry?', answer: 8, unit: 'passengers', hint: 'Divide the total safe load by the weight per passenger: 480 ÷ 60.', formula: 'Passenger limit = 480 ÷ 60', buildText: 'The load limit sign, life jackets and safety flag have been added. The ferry is ready for a safe crossing test.' }
     ]
   },
   {
