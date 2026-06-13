@@ -2,6 +2,7 @@ import { Project } from '../data/projects';
 import Bridge2DConstructionSite from './Bridge2DConstructionSite';
 import Bridge3DConstructionSite from './Bridge3DConstructionSiteV3';
 import Playground2DConstructionSite from './Playground2DConstructionSite';
+import Playground3DConstructionSite from './Playground3DConstructionSite';
 import Ferry2DConstructionSite from './Ferry2DConstructionSite';
 import Irrigation2DConstructionSite from './Irrigation2DConstructionSite';
 import SmartParking2DConstructionSite from './SmartParking2DConstructionSite';
@@ -31,6 +32,10 @@ export default function VisualBuilder({ project, completed, mode, feedback }: Vi
 
   if (project.id === 'footbridge-stream' && mode === '2d') {
     return <Bridge2DConstructionSite buildStage={completed} feedback={feedback} />;
+  }
+
+  if (project.id === 'school-playground-layout' && mode === '3d') {
+    return <Playground3DConstructionSite buildStage={completed} feedback={feedback} />;
   }
 
   if (project.id === 'school-playground-layout' && mode === '2d') {
