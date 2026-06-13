@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Project } from '../data/projects';
 import VisualBuilder from './VisualBuilder';
 
@@ -11,11 +11,12 @@ type ViewMode = '2d' | '3d' | 'vr';
 export default function MissionEngine({ project }: MissionEngineProps) {
   const [stepIndex, setStepIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [completedStepIds, setCompletedStepIds] = useState<number[]>([]);
   const [feedback, setFeedback] = useState('');
   const [mode, setMode] = useState<ViewMode>('2d');
 
   const step = project.steps[stepIndex];
-  const completed = useMemo(() => project.steps.filter((item) => answers[item.id] && Number(answers[item.id]) === item.answer).length, [answers, project.steps]);
+  const completed = completedStepIds.length;
   const progress = Math.round((completed / project.steps.length) * 100);
 
   function checkAnswer() {
@@ -26,11 +27,12 @@ export default function MissionEngine({ project }: MissionEngineProps) {
     }
     if (userAnswer === step.answer) {
       setFeedback(`Correct. ${step.buildText}`);
+      setCompletedStepIds((current) => (current.includes(step.id) ? current : [...current, step.id]));
       if (stepIndex < project.steps.length - 1) {
         window.setTimeout(() => {
           setStepIndex((current) => current + 1);
           setFeedback('');
-        }, 700);
+        }, 900);
       }
     } else {
       setFeedback(`Not quite. Hint: ${step.hint}`);
@@ -39,6 +41,7 @@ export default function MissionEngine({ project }: MissionEngineProps) {
 
   function resetMission() {
     setAnswers({});
+    setCompletedStepIds([]);
     setStepIndex(0);
     setFeedback('');
     setMode('2d');
@@ -64,7 +67,7 @@ export default function MissionEngine({ project }: MissionEngineProps) {
             <button
               key={item.id}
               type="button"
-              className={`step-dot ${index === stepIndex ? 'current' : ''} ${answers[item.id] && Number(answers[item.id]) === item.answer ? 'done' : ''}`}
+              className={`step-dot ${index === stepIndex ? 'current' : ''} ${completedStepIds.includes(item.id) ? 'done' : ''}`}
               onClick={() => {
                 setStepIndex(index);
                 setFeedback('');
@@ -117,7 +120,7 @@ export default function MissionEngine({ project }: MissionEngineProps) {
             </button>
           ))}
         </div>
-        <VisualBuilder project={project} completed={completed} mode={mode} />
+        <VisualBuilder project={project} completed={completed} mode={mode} feedback={feedback} />
         <div className="tools-box">
           <strong>Mission tools</strong>
           <div>
