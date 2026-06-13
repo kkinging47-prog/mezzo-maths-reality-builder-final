@@ -1,6 +1,6 @@
 import { Project } from '../data/projects';
 import Bridge2DConstructionSite from './Bridge2DConstructionSite';
-import Bridge3DConstructionSite from './Bridge3DConstructionSiteV2';
+import Bridge3DConstructionSite from './Bridge3DConstructionSiteV3';
 import Playground2DConstructionSite from './Playground2DConstructionSite';
 import Ferry2DConstructionSite from './Ferry2DConstructionSite';
 import Irrigation2DConstructionSite from './Irrigation2DConstructionSite';
