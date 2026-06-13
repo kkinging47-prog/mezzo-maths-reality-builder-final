@@ -1,9 +1,11 @@
 import { Project } from '../data/projects';
+import Bridge2DConstructionSite from './Bridge2DConstructionSite';
 
 type VisualBuilderProps = {
   project: Project;
   completed: number;
   mode: '2d' | '3d' | 'vr';
+  feedback?: string;
 };
 
 const scenes: Record<string, string[]> = {
@@ -15,7 +17,11 @@ const scenes: Record<string, string[]> = {
   'weather-balloon-launch': ['🎈', '📦', '📡', '📈', '🛰️', '🚀'],
 };
 
-export default function VisualBuilder({ project, completed, mode }: VisualBuilderProps) {
+export default function VisualBuilder({ project, completed, mode, feedback }: VisualBuilderProps) {
+  if (project.id === 'footbridge-stream' && mode === '2d') {
+    return <Bridge2DConstructionSite buildStage={completed} feedback={feedback} />;
+  }
+
   const parts = scenes[project.id] ?? ['📐', '🧮', '🏗️', '✅'];
   return (
     <section className={`visual-builder ${mode}`}>
