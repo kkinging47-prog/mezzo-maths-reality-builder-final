@@ -47,12 +47,12 @@ function FlowingRiver() {
     }
   });
 
-  const waveLines = useMemo(() => Array.from({ length: 19 }, (_, index) => index - 9), []);
+  const waveLines = useMemo(() => Array.from({ length: 21 }, (_, index) => index - 10), []);
 
   return (
     <group>
       <mesh ref={waterRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]} receiveShadow>
-        <planeGeometry args={[3.25, 12.8]} />
+        <planeGeometry args={[3.25, 13.4]} />
         <meshStandardMaterial color="#38bdf8" transparent opacity={0.82} roughness={0.22} metalness={0.05} />
       </mesh>
       <group ref={wavesRef} position={[0, 0.085, 0]}>
@@ -65,7 +65,7 @@ function FlowingRiver() {
       </group>
       {[-1.82, 1.82].map((x) => (
         <mesh key={x} position={[x, 0.08, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-          <planeGeometry args={[0.48, 12.6]} />
+          <planeGeometry args={[0.48, 13.2]} />
           <meshStandardMaterial color="#a16207" roughness={0.78} />
         </mesh>
       ))}
@@ -124,54 +124,155 @@ function SimpleBuilding({ position, color, roofColor, label }: { position: Vec3;
   );
 }
 
-function HumanFigure({ position, color = '#7c3aed', cheering = false }: { position: Vec3; color?: string; cheering?: boolean }) {
-  const armLift = cheering ? 2.2 : 0.52;
+type HumanFigureProps = {
+  position: Vec3;
+  shirtColor?: string;
+  pantsColor?: string;
+  skinColor?: string;
+  hairColor?: string;
+  cheering?: boolean;
+  walking?: boolean;
+};
+
+function HumanFigure({
+  position,
+  shirtColor = '#2563eb',
+  pantsColor = '#1e293b',
+  skinColor = '#d39b72',
+  hairColor = '#111827',
+  cheering = false,
+  walking = false,
+}: HumanFigureProps) {
+  const leftArm = useRef<THREE.Group>(null);
+  const rightArm = useRef<THREE.Group>(null);
+  const leftLeg = useRef<THREE.Group>(null);
+  const rightLeg = useRef<THREE.Group>(null);
+  const head = useRef<THREE.Group>(null);
+
+  useFrame((state) => {
+    const wave = Math.sin(state.clock.elapsedTime * 6.2);
+    const armSwing = walking ? wave * 0.52 : 0;
+    const legSwing = walking ? wave * 0.34 : 0;
+    const cheerLift = cheering ? 2.2 + Math.sin(state.clock.elapsedTime * 8) * 0.16 : 0.38;
+
+    if (leftArm.current) leftArm.current.rotation.z = cheering ? cheerLift : 0.5 + armSwing;
+    if (rightArm.current) rightArm.current.rotation.z = cheering ? -cheerLift : -0.5 - armSwing;
+    if (leftLeg.current) leftLeg.current.rotation.x = legSwing;
+    if (rightLeg.current) rightLeg.current.rotation.x = -legSwing;
+    if (head.current) head.current.rotation.y = Math.sin(state.clock.elapsedTime * 2.2) * 0.05;
+  });
+
   return (
     <group position={position}>
-      <mesh position={[0, 0.78, 0]} castShadow>
-        <sphereGeometry args={[0.14, 20, 20]} />
-        <meshStandardMaterial color="#f2c29a" roughness={0.5} />
-      </mesh>
-      <mesh position={[0, 0.91, -0.02]} castShadow>
-        <sphereGeometry args={[0.1, 14, 14]} />
-        <meshStandardMaterial color="#111827" roughness={0.75} />
+      <group ref={head}>
+        <mesh position={[0, 0.92, 0.02]} castShadow>
+          <sphereGeometry args={[0.15, 28, 28]} />
+          <meshStandardMaterial color={skinColor} roughness={0.48} />
+        </mesh>
+        <mesh position={[0, 1.035, 0]} scale={[1, 0.55, 1]} castShadow>
+          <sphereGeometry args={[0.145, 22, 16]} />
+          <meshStandardMaterial color={hairColor} roughness={0.82} />
+        </mesh>
+        <mesh position={[-0.052, 0.94, 0.14]}>
+          <sphereGeometry args={[0.016, 10, 10]} />
+          <meshStandardMaterial color="#020617" />
+        </mesh>
+        <mesh position={[0.052, 0.94, 0.14]}>
+          <sphereGeometry args={[0.016, 10, 10]} />
+          <meshStandardMaterial color="#020617" />
+        </mesh>
+        <mesh position={[0, 0.895, 0.155]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.03, 0.012, 0.052, 10]} />
+          <meshStandardMaterial color={skinColor} roughness={0.5} />
+        </mesh>
+        <mesh position={[0, 0.85, 0.148]}>
+          <boxGeometry args={[0.07, 0.012, 0.012]} />
+          <meshStandardMaterial color="#7f1d1d" />
+        </mesh>
+      </group>
+
+      <mesh position={[0, 0.71, 0]} castShadow>
+        <cylinderGeometry args={[0.075, 0.095, 0.16, 14]} />
+        <meshStandardMaterial color={skinColor} roughness={0.52} />
       </mesh>
       <mesh position={[0, 0.48, 0]} castShadow>
-        <capsuleGeometry args={[0.14, 0.38, 10, 16]} />
-        <meshStandardMaterial color={color} roughness={0.62} />
+        <capsuleGeometry args={[0.16, 0.44, 12, 20]} />
+        <meshStandardMaterial color={shirtColor} roughness={0.6} />
       </mesh>
-      <mesh position={[0, 0.64, -0.13]} castShadow>
-        <boxGeometry args={[0.26, 0.22, 0.08]} />
-        <meshStandardMaterial color="#1e293b" roughness={0.7} />
+      <mesh position={[0, 0.28, 0.005]} castShadow>
+        <boxGeometry args={[0.27, 0.12, 0.18]} />
+        <meshStandardMaterial color={pantsColor} roughness={0.72} />
       </mesh>
-      <group position={[-0.16, 0.57, 0]} rotation={[0, 0, armLift]}>
-        <mesh position={[0, -0.19, 0]} castShadow>
-          <capsuleGeometry args={[0.035, 0.34, 7, 10]} />
-          <meshStandardMaterial color="#f2c29a" roughness={0.5} />
+      <mesh position={[0, 0.54, -0.14]} castShadow>
+        <boxGeometry args={[0.28, 0.32, 0.085]} />
+        <meshStandardMaterial color="#111827" roughness={0.74} />
+      </mesh>
+      <mesh position={[-0.13, 0.65, -0.14]} rotation={[0.3, 0, -0.24]} castShadow>
+        <capsuleGeometry args={[0.018, 0.26, 8, 10]} />
+        <meshStandardMaterial color="#0f172a" />
+      </mesh>
+      <mesh position={[0.13, 0.65, -0.14]} rotation={[0.3, 0, 0.24]} castShadow>
+        <capsuleGeometry args={[0.018, 0.26, 8, 10]} />
+        <meshStandardMaterial color="#0f172a" />
+      </mesh>
+
+      <group ref={leftArm} position={[-0.16, 0.57, 0]} rotation={[0, 0, 0.52]}>
+        <mesh position={[0, -0.13, 0]} castShadow>
+          <capsuleGeometry args={[0.04, 0.22, 8, 12]} />
+          <meshStandardMaterial color={shirtColor} roughness={0.62} />
+        </mesh>
+        <mesh position={[0, -0.33, 0]} castShadow>
+          <capsuleGeometry args={[0.032, 0.18, 8, 12]} />
+          <meshStandardMaterial color={skinColor} roughness={0.52} />
+        </mesh>
+        <mesh position={[0, -0.45, 0]} castShadow>
+          <sphereGeometry args={[0.045, 12, 12]} />
+          <meshStandardMaterial color={skinColor} roughness={0.52} />
         </mesh>
       </group>
-      <group position={[0.16, 0.57, 0]} rotation={[0, 0, -armLift]}>
-        <mesh position={[0, -0.19, 0]} castShadow>
-          <capsuleGeometry args={[0.035, 0.34, 7, 10]} />
-          <meshStandardMaterial color="#f2c29a" roughness={0.5} />
+      <group ref={rightArm} position={[0.16, 0.57, 0]} rotation={[0, 0, -0.52]}>
+        <mesh position={[0, -0.13, 0]} castShadow>
+          <capsuleGeometry args={[0.04, 0.22, 8, 12]} />
+          <meshStandardMaterial color={shirtColor} roughness={0.62} />
+        </mesh>
+        <mesh position={[0, -0.33, 0]} castShadow>
+          <capsuleGeometry args={[0.032, 0.18, 8, 12]} />
+          <meshStandardMaterial color={skinColor} roughness={0.52} />
+        </mesh>
+        <mesh position={[0, -0.45, 0]} castShadow>
+          <sphereGeometry args={[0.045, 12, 12]} />
+          <meshStandardMaterial color={skinColor} roughness={0.52} />
         </mesh>
       </group>
-      <mesh position={[-0.07, 0.17, 0]} rotation={[0.16, 0, 0]} castShadow>
-        <capsuleGeometry args={[0.04, 0.3, 7, 10]} />
-        <meshStandardMaterial color="#111827" roughness={0.72} />
-      </mesh>
-      <mesh position={[0.08, 0.17, 0]} rotation={[-0.16, 0, 0]} castShadow>
-        <capsuleGeometry args={[0.04, 0.3, 7, 10]} />
-        <meshStandardMaterial color="#111827" roughness={0.72} />
-      </mesh>
-      <mesh position={[-0.07, -0.02, 0.04]} castShadow>
-        <boxGeometry args={[0.12, 0.04, 0.2]} />
-        <meshStandardMaterial color="#020617" />
-      </mesh>
-      <mesh position={[0.08, -0.02, 0.04]} castShadow>
-        <boxGeometry args={[0.12, 0.04, 0.2]} />
-        <meshStandardMaterial color="#020617" />
-      </mesh>
+
+      <group ref={leftLeg} position={[-0.075, 0.21, 0]}>
+        <mesh position={[0, -0.13, 0]} castShadow>
+          <capsuleGeometry args={[0.045, 0.24, 8, 12]} />
+          <meshStandardMaterial color={pantsColor} roughness={0.72} />
+        </mesh>
+        <mesh position={[0, -0.33, 0]} castShadow>
+          <capsuleGeometry args={[0.038, 0.18, 8, 12]} />
+          <meshStandardMaterial color={pantsColor} roughness={0.72} />
+        </mesh>
+        <mesh position={[0, -0.45, 0.055]} castShadow>
+          <boxGeometry args={[0.13, 0.045, 0.22]} />
+          <meshStandardMaterial color="#020617" />
+        </mesh>
+      </group>
+      <group ref={rightLeg} position={[0.085, 0.21, 0]}>
+        <mesh position={[0, -0.13, 0]} castShadow>
+          <capsuleGeometry args={[0.045, 0.24, 8, 12]} />
+          <meshStandardMaterial color={pantsColor} roughness={0.72} />
+        </mesh>
+        <mesh position={[0, -0.33, 0]} castShadow>
+          <capsuleGeometry args={[0.038, 0.18, 8, 12]} />
+          <meshStandardMaterial color={pantsColor} roughness={0.72} />
+        </mesh>
+        <mesh position={[0, -0.45, 0.055]} castShadow>
+          <boxGeometry args={[0.13, 0.045, 0.22]} />
+          <meshStandardMaterial color="#020617" />
+        </mesh>
+      </group>
     </group>
   );
 }
@@ -180,15 +281,18 @@ function TestingCrowd({ visible, testing, resetKey, crossed, onDone }: { visible
   const groupRefs = useRef<Array<THREE.Group | null>>([]);
   const progress = useRef([0, 0, 0, 0]);
   const done = useRef(false);
-  const zOffsets = useMemo(() => [-0.46, -0.16, 0.16, 0.46], []);
-  const colors = useMemo(() => ['#f97316', '#2563eb', '#16a34a', '#db2777'], []);
+  const zOffsets = useMemo(() => [-0.44, -0.14, 0.16, 0.46], []);
+  const shirts = useMemo(() => ['#f97316', '#2563eb', '#16a34a', '#db2777'], []);
+  const pants = useMemo(() => ['#1e293b', '#334155', '#172554', '#3f3f46'], []);
+  const skins = useMemo(() => ['#6f3d2e', '#a7643e', '#d39b72', '#8a4b30'], []);
+  const hair = useMemo(() => ['#111827', '#1f2937', '#3f230f', '#0f172a'], []);
 
   useEffect(() => {
     progress.current = [0, 0, 0, 0];
     done.current = false;
     groupRefs.current.forEach((group, index) => {
       if (!group) return;
-      group.position.set(-3.18 - index * 0.12, 1.29, zOffsets[index]);
+      group.position.set(-3.18 - index * 0.14, 1.34, zOffsets[index]);
       group.rotation.y = Math.PI / 2;
     });
   }, [resetKey, zOffsets]);
@@ -198,11 +302,11 @@ function TestingCrowd({ visible, testing, resetKey, crossed, onDone }: { visible
     let allDone = true;
     groupRefs.current.forEach((group, index) => {
       if (!group) return;
-      progress.current[index] = Math.min(1, progress.current[index] + delta * (0.23 - index * 0.008));
+      progress.current[index] = Math.min(1, progress.current[index] + delta * (0.24 - index * 0.01));
       const t = progress.current[index];
       const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-      group.position.x = THREE.MathUtils.lerp(-3.18 - index * 0.12, 3.22 + index * 0.1, eased);
-      group.position.y = 1.29 + Math.sin(state.clock.elapsedTime * 8 + index) * 0.025;
+      group.position.x = THREE.MathUtils.lerp(-3.18 - index * 0.14, 3.22 + index * 0.12, eased);
+      group.position.y = 1.34 + Math.sin(state.clock.elapsedTime * 8 + index) * 0.018;
       group.position.z = zOffsets[index];
       group.rotation.y = Math.PI / 2;
       if (t < 1) allDone = false;
@@ -224,14 +328,22 @@ function TestingCrowd({ visible, testing, resetKey, crossed, onDone }: { visible
           ref={(node) => {
             groupRefs.current[index] = node;
           }}
-          position={[-3.18 - index * 0.12, 1.29, z]}
+          position={[-3.18 - index * 0.14, 1.34, z]}
           rotation={[0, Math.PI / 2, 0]}
         >
-          <HumanFigure position={[0, 0, 0]} color={colors[index]} cheering={crossed} />
+          <HumanFigure
+            position={[0, 0, 0]}
+            shirtColor={shirts[index]}
+            pantsColor={pants[index]}
+            skinColor={skins[index]}
+            hairColor={hair[index]}
+            walking={testing && !crossed}
+            cheering={crossed}
+          />
         </group>
       ))}
       {crossed && (
-        <Text position={[3.25, 2.55, 0]} rotation={[-0.25, -0.8, 0]} fontSize={0.18} color="#065f46" anchorX="center">
+        <Text position={[3.25, 2.58, 0]} rotation={[-0.25, -0.8, 0]} fontSize={0.18} color="#065f46" anchorX="center">
           Safe crossing! 👏
         </Text>
       )}
@@ -372,7 +484,7 @@ function Scene({ stage, testing, resetKey, crossed, onDone }: { stage: number; t
       <directionalLight position={[5, 7, 4]} intensity={1.55} castShadow shadow-mapSize-width={1024} shadow-mapSize-height={1024} />
       <group position={[0, 0, 0]}>
         <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-          <planeGeometry args={[14, 11]} />
+          <planeGeometry args={[14.4, 11.4]} />
           <meshStandardMaterial color="#86efac" roughness={0.9} />
         </mesh>
         <FlowingRiver />
@@ -392,14 +504,14 @@ function Scene({ stage, testing, resetKey, crossed, onDone }: { stage: number; t
         ))}
         {stage < 6 && (
           <>
-            <HumanFigure position={[-3.25, 0.05, -0.2]} color="#2563eb" />
-            <HumanFigure position={[-3.55, 0.05, 0.55]} color="#16a34a" />
+            <HumanFigure position={[-3.25, 0.05, -0.2]} shirtColor="#2563eb" skinColor="#8a4b30" />
+            <HumanFigure position={[-3.55, 0.05, 0.55]} shirtColor="#16a34a" skinColor="#d39b72" />
           </>
         )}
         <TestingCrowd visible={stage >= 6} testing={testing} resetKey={resetKey} crossed={crossed} onDone={onDone} />
       </group>
       <Clouds />
-      <OrbitControls makeDefault enablePan enableZoom minDistance={4.4} maxDistance={12} maxPolarAngle={Math.PI / 2.1} target={[0, 1.15, 0]} />
+      <OrbitControls makeDefault enablePan enableZoom minDistance={4.4} maxDistance={12.5} maxPolarAngle={Math.PI / 2.08} target={[0, 1.2, 0]} />
     </>
   );
 }
@@ -430,42 +542,53 @@ export default function Bridge3DConstructionSite({ buildStage, feedback }: Bridg
 
   return (
     <section className="bridge-3d-shell" aria-label="Animated 3D bridge builder scene">
-      <div className="bridge-3d-overlay">
+      <div className="bridge-3d-scene-header">
         <div>
           <p className="bridge-3d-eyebrow">3D Bridge Builder</p>
-          <h3>Real Animated Construction Mode</h3>
+          <h3>Wide Real Animated Construction Mode</h3>
           <p>Rotate, zoom, and watch the bridge grow as you solve each maths step.</p>
         </div>
         <strong>{stage}/6 built</strong>
       </div>
 
       <div className="bridge-3d-canvas-wrap">
-        <Canvas shadows camera={{ position: [5.6, 4.35, 6.1], fov: 43 }}>
+        <Canvas shadows camera={{ position: [6.3, 4.15, 6.55], fov: 39 }}>
           <Scene stage={stage} testing={testing} resetKey={resetKey} crossed={crossed} onDone={markDone} />
         </Canvas>
       </div>
 
-      <div className="bridge-3d-controls">
-        <span>{feedback || (stage < 6 ? 'Solve each bridge question to add the next real 3D construction part.' : 'Bridge is complete. Test four learners crossing on top of the bridge.')}</span>
-        <div>
+      <div className="bridge-3d-control-panel">
+        {stage >= 6 ? (
+          <div className="bridge-3d-complete-copy">
+            <strong>✅ Questions Set Complete</strong>
+            <span>The bridge is fully built. You can now run the movement test below.</span>
+          </div>
+        ) : (
+          <span>{feedback || 'Solve each bridge question above to add the next real 3D construction part.'}</span>
+        )}
+        <div className="bridge-3d-control-actions">
           {stage >= 6 && (
             <button type="button" onClick={startTest} disabled={testing} aria-label="Test the completed 3D bridge with four learners">
-              {testing ? 'Testing...' : 'Test Bridge'}
+              {testing ? 'Testing four learners...' : 'Test Bridge Movement'}
             </button>
           )}
           {(testing || crossed) && (
             <button type="button" className="secondary" onClick={resetTest} aria-label="Reset the 3D bridge crossing test">
-              Reset Test
+              Reset Movement Test
             </button>
           )}
         </div>
       </div>
 
-      {crossed && <div className="bridge-3d-success">Bridge Complete — Four learners crossed safely! 👏</div>}
+      {crossed && <div className="bridge-3d-success">Bridge Complete — Four learners crossed safely and applauded! 👏</div>}
 
       <style>{`
-        .bridge-3d-shell{position:relative;overflow:hidden;min-height:640px;width:100%;border-radius:28px;background:linear-gradient(135deg,#e0f2fe,#eef2ff 48%,#dcfce7);border:1px solid rgba(99,102,241,.16);box-shadow:0 24px 70px rgba(30,41,59,.14)}
-        .bridge-3d-canvas-wrap{min-height:610px;height:72vh;max-height:780px;width:100%}.bridge-3d-canvas-wrap canvas{display:block;width:100%!important;height:100%!important}.bridge-3d-overlay{position:absolute;z-index:3;top:14px;left:14px;right:14px;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;pointer-events:none}.bridge-3d-overlay>div,.bridge-3d-overlay>strong,.bridge-3d-controls,.bridge-3d-success{pointer-events:auto;border:1px solid rgba(255,255,255,.72);background:rgba(255,255,255,.84);backdrop-filter:blur(12px);box-shadow:0 16px 38px rgba(15,23,42,.12)}.bridge-3d-overlay>div{max-width:390px;padding:.78rem .95rem;border-radius:20px}.bridge-3d-overlay h3{margin:.1rem 0 .25rem;color:#1e1b4b;font-size:1rem}.bridge-3d-overlay p{margin:0;color:#475569;line-height:1.38;font-size:.84rem}.bridge-3d-eyebrow{color:#4f46e5!important;font-weight:900;text-transform:uppercase;letter-spacing:.09em;font-size:.68rem!important}.bridge-3d-overlay>strong{padding:.7rem .9rem;border-radius:999px;color:#312e81;white-space:nowrap}.bridge-3d-controls{position:absolute;z-index:3;left:14px;right:14px;bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.82rem .95rem;border-radius:20px;color:#334155;font-weight:800}.bridge-3d-controls div{display:flex;gap:.65rem;flex-wrap:wrap;justify-content:flex-end}.bridge-3d-controls button{border:0;border-radius:999px;padding:.72rem 1rem;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:white;font-weight:900;cursor:pointer;box-shadow:0 12px 24px rgba(79,70,229,.24)}.bridge-3d-controls button:disabled{opacity:.72;cursor:wait}.bridge-3d-controls button.secondary{background:#f8fafc;color:#312e81;border:1px solid rgba(79,70,229,.18);box-shadow:none}.bridge-3d-success{position:absolute;z-index:4;left:50%;top:50%;transform:translate(-50%,-50%);padding:1rem 1.25rem;border-radius:999px;color:#065f46;font-size:1.05rem;font-weight:1000;border-color:rgba(16,185,129,.28);text-align:center}.bridge-3d-shell:focus-within{outline:3px solid rgba(14,165,233,.3);outline-offset:4px}@media(max-width:720px){.bridge-3d-shell{min-height:620px;border-radius:20px}.bridge-3d-canvas-wrap{min-height:620px;height:76vh}.bridge-3d-overlay{flex-direction:column;align-items:flex-start;top:12px;left:12px;right:12px}.bridge-3d-overlay>div{padding:.75rem;max-width:calc(100% - 1rem)}.bridge-3d-controls{left:12px;right:12px;bottom:12px;align-items:flex-start;flex-direction:column}.bridge-3d-success{width:min(88%,440px);border-radius:24px}}
+        .bridge-3d-shell{position:relative;overflow:hidden;width:100%;border-radius:28px;background:linear-gradient(135deg,#e0f2fe,#eef2ff 48%,#dcfce7);border:1px solid rgba(99,102,241,.16);box-shadow:0 24px 70px rgba(30,41,59,.14);color:#0f172a}
+        .bridge-3d-scene-header{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;padding:1rem 1.1rem .75rem;background:rgba(255,255,255,.72);border-bottom:1px solid rgba(99,102,241,.14)}
+        .bridge-3d-scene-header h3{margin:.1rem 0 .25rem;color:#1e1b4b;font-size:1rem}.bridge-3d-scene-header p{margin:0;color:#475569;line-height:1.38;font-size:.86rem}.bridge-3d-eyebrow{color:#4f46e5!important;font-weight:900;text-transform:uppercase;letter-spacing:.09em;font-size:.68rem!important}.bridge-3d-scene-header>strong{padding:.7rem .9rem;border-radius:999px;color:#312e81;white-space:nowrap;background:white;border:1px solid rgba(79,70,229,.14)}
+        .bridge-3d-canvas-wrap{min-height:520px;height:min(58vw,720px);max-height:760px;width:100%;background:linear-gradient(180deg,#dbeafe,#f0f9ff)}.bridge-3d-canvas-wrap canvas{display:block;width:100%!important;height:100%!important}
+        .bridge-3d-control-panel{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem 1.1rem;background:rgba(255,255,255,.9);border-top:1px solid rgba(99,102,241,.14);color:#334155;font-weight:800}.bridge-3d-complete-copy{display:grid;gap:.25rem}.bridge-3d-complete-copy strong{color:#065f46}.bridge-3d-complete-copy span{color:#475569;font-weight:700}.bridge-3d-control-actions{display:flex;gap:.65rem;flex-wrap:wrap;justify-content:flex-end}.bridge-3d-control-panel button{border:0;border-radius:999px;padding:.78rem 1.05rem;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:white;font-weight:900;cursor:pointer;box-shadow:0 12px 24px rgba(79,70,229,.24)}.bridge-3d-control-panel button:disabled{opacity:.72;cursor:wait}.bridge-3d-control-panel button.secondary{background:#f8fafc;color:#312e81;border:1px solid rgba(79,70,229,.18);box-shadow:none}.bridge-3d-success{margin:1rem 1.1rem 1.1rem;padding:1rem 1.25rem;border-radius:20px;color:#065f46;background:#dcfce7;border:1px solid rgba(16,185,129,.24);font-size:1.05rem;font-weight:1000;text-align:center}.bridge-3d-shell:focus-within{outline:3px solid rgba(14,165,233,.35);outline-offset:4px}
+        @media (max-width:760px){.bridge-3d-scene-header,.bridge-3d-control-panel{flex-direction:column;align-items:flex-start}.bridge-3d-canvas-wrap{min-height:420px;height:68vh}.bridge-3d-control-actions{width:100%}.bridge-3d-control-panel button{width:100%}}
       `}</style>
     </section>
   );
