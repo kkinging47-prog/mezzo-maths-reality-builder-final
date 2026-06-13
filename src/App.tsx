@@ -35,6 +35,7 @@ export default function App() {
           <Route path="/role-selection" element={<RoleSelectionPage />} />
           <Route path="/student/dashboard" element={<StudentDashboard />} />
           <Route path="/student/worlds" element={<WorldsPage />} />
+          <Route path="/student/missions" element={<StudentDashboard />} />
           <Route path="/student/project/:projectId" element={<ProjectPage />} />
           <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
           <Route path="/school-admin/dashboard" element={<SchoolAdminDashboard />} />
