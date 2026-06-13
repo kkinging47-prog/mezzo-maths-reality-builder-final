@@ -35,7 +35,7 @@ export const worlds: World[] = [
   { id: 'bridge-builder', name: 'Bridge Builder', tagline: 'Use length, load and geometry to connect communities.', icon: '🌉', color: 'blue', activeProjectId: 'footbridge-stream' },
   { id: 'smart-city', name: 'Smart City Designer', tagline: 'Plan safe spaces, roads and playgrounds with measurement.', icon: '🏙️', color: 'purple', activeProjectId: 'school-playground-layout' },
   { id: 'ship-engineering', name: 'Ship Engineering Bay', tagline: 'Design river transport using capacity, time and distance.', icon: '⛴️', color: 'cyan', activeProjectId: 'ferry-river-crossing' },
-  { id: 'robotics-arena', name: 'Robotics Arena', tagline: 'Program robots with coordinates, steps and logic.', icon: '🤖', color: 'green', activeProjectId: 'simple-cleaning-robot' },
+  { id: 'robotics-arena', name: 'Flood-Safe Road Engineering Lab', tagline: 'Use civil engineering maths to raise roads and upgrade gutters to stop flooding.', icon: '🌧️', color: 'green', activeProjectId: 'flood-safe-road-drainage-upgrade' },
   { id: 'farm-market', name: 'Farm & Market Maths', tagline: 'Use water, quantity and business maths to solve farm problems.', icon: '🌱', color: 'gold', activeProjectId: 'smart-irrigation-system' },
   { id: 'space-lab', name: 'Smart Parking System Lab', tagline: 'Build automated car parks using area, sensors, counting and display logic.', icon: '🅿️', color: 'pink', activeProjectId: 'smart-car-parking-system' }
 ];
@@ -99,14 +99,22 @@ export const projects: Project[] = [
     ]
   },
   {
-    id: 'simple-cleaning-robot', worldId: 'robotics-arena', title: 'Program a Simple Cleaning Robot', level: 'Beginner', status: 'active', age: 'Ages 9–14', description: 'Control a robot with distance, turns, repeated steps and grid logic.', maths: ['Coordinates', 'Multiplication', 'Sequences', 'Logic'], tools: ['Robot', 'Grid map', 'Command blocks'],
+    id: 'flood-safe-road-drainage-upgrade',
+    worldId: 'robotics-arena',
+    title: 'Raise the Road and Upgrade the Gutters',
+    level: 'Beginner',
+    status: 'active',
+    age: 'Ages 10–14',
+    description: 'Students use measurement, subtraction, area, multiplication and addition to raise a community road and rebuild wider, deeper side gutters so rainwater flows safely away from homes and properties.',
+    maths: ['Measurement', 'Subtraction', 'Area', 'Multiplication', 'Addition', 'Civil engineering'],
+    tools: ['Measuring tape', 'Depth markers', 'Excavator', 'Road filling material', 'Concrete gutter walls', 'Drain covers'],
     steps: [
-      { id: 1, title: 'Move Forward', question: 'The robot moves 2 squares each command. After 3 commands, how many squares has it moved?', answer: 6, unit: 'squares', hint: 'Multiply 2 by 3.', formula: '2 × 3', buildText: 'The robot drives across the first tiles.' },
-      { id: 2, title: 'Clean Tiles', question: 'The robot cleans 4 tiles in one row. How many tiles in 5 rows?', answer: 20, unit: 'tiles', hint: 'Rows times tiles per row.', formula: '4 × 5', buildText: 'The floor grid lights up clean.' },
-      { id: 3, title: 'Battery Use', question: 'Each row uses 3% battery. How much battery for 5 rows?', answer: 15, unit: '%', hint: 'Multiply 3 by 5.', formula: '3 × 5', buildText: 'The robot battery monitor updates.' },
-      { id: 4, title: 'Obstacle Route', question: 'The robot turns 90 degrees twice. What is the total angle turned?', answer: 180, unit: 'degrees', hint: 'Add 90 + 90.', formula: '90 + 90', buildText: 'The robot avoids the obstacle.' },
-      { id: 5, title: 'Return Home', question: 'The robot is 8 squares away and moves 2 squares per second. How many seconds to return?', answer: 4, unit: 'seconds', hint: 'Divide 8 by 2.', formula: '8 ÷ 2', buildText: 'The robot returns to its charging base.' },
-      { id: 6, title: 'Full Cleaning Score', question: 'The robot earns 10 points per clean row. What is the score for 5 rows?', answer: 50, unit: 'points', hint: 'Multiply 10 by 5.', formula: '10 × 5', buildText: 'Mission complete. The cleaning robot is programmed.' }
+      { id: 1, title: 'Measure the Old Gutter Depth', question: 'The old gutter is 40 cm deep. Engineers want the new gutter to be 90 cm deep. How many centimetres deeper must the new gutter be?', answer: 50, unit: 'cm', hint: 'Subtract the old depth from the new depth: 90 − 40.', formula: 'Extra depth = 90 − 40', buildText: 'The engineers have measured the old gutter and marked the new depth.' },
+      { id: 2, title: 'Increase the Gutter Width', question: 'The old gutter is 50 cm wide. The new gutter will be 100 cm wide. How many centimetres wider will the new gutter be?', answer: 50, unit: 'cm', hint: 'Subtract the old width from the new width: 100 − 50.', formula: 'Extra width = 100 − 50', buildText: 'The wider gutter space has been marked on both sides of the road.' },
+      { id: 3, title: 'Calculate the New Gutter Capacity', question: 'The new gutter is 100 cm wide and 90 cm deep. What is the cross-section area of the gutter?', answer: 9000, unit: 'cm²', hint: 'Area = width × depth. Calculate 100 × 90.', formula: 'Gutter area = 100 × 90', buildText: 'The deeper gutter trenches have been excavated.' },
+      { id: 4, title: 'Raise the Road Level', question: 'The road surface must be raised by 30 cm. If the old road level is 0 cm, what will the new road level be?', answer: 30, unit: 'cm', hint: 'Add the raised height to the old road level: 0 + 30.', formula: 'New road level = 0 + 30', buildText: 'The road level has been raised above the rainwater path.' },
+      { id: 5, title: 'Build Gutters on Both Sides', question: 'One side of the road needs 20 metres of gutter. Since gutters are needed on both sides, how many metres of gutter must be built altogether?', answer: 40, unit: 'm', hint: 'There are 2 sides. Calculate 20 × 2.', formula: 'Total gutter length = 20 × 2', buildText: 'Concrete gutter walls have been built along both sides of the road.' },
+      { id: 6, title: 'Test Rainwater Flow', question: 'During heavy rain, the left gutter carries 40 buckets of water and the right gutter carries 40 buckets. How many buckets are carried away altogether?', answer: 80, unit: 'buckets', hint: 'Add the water carried by both gutters: 40 + 40.', formula: 'Total water carried = 40 + 40', buildText: 'The water flow channels and drain covers are complete. The road is ready for the heavy rain test.' }
     ]
   },
   {
