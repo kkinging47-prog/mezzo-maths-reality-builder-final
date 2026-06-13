@@ -1,1 +1,14 @@
-.demo-class{animation:none!important;}
+@keyframes smartParkingSlotFill {
+  0% { transform: translate(0, 0); }
+  35% { transform: translate(185px, 0); }
+  62% { transform: translate(330px, -80px); }
+  100% { transform: translate(462px, -154px); }
+}
+
+.parking-site .test\2d car {
+  animation: smartParkingSlotFill 3.8s ease-in-out forwards !important;
+}
+
+.parking-site g[transform="translate(514 358)"] {
+  opacity: 0 !important;
+}
