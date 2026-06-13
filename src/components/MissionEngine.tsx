@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Project } from '../data/projects';
 import VisualBuilder from './VisualBuilder';
 
@@ -14,10 +14,15 @@ export default function MissionEngine({ project }: MissionEngineProps) {
   const [completedStepIds, setCompletedStepIds] = useState<number[]>([]);
   const [feedback, setFeedback] = useState('');
   const [mode, setMode] = useState<ViewMode>('2d');
+  const [showHint, setShowHint] = useState(false);
 
   const step = project.steps[stepIndex];
   const completed = completedStepIds.length;
   const progress = Math.round((completed / project.steps.length) * 100);
+
+  useEffect(() => {
+    setShowHint(false);
+  }, [project.id, stepIndex]);
 
   function checkAnswer() {
     const userAnswer = Number(answers[step.id]);
@@ -26,6 +31,7 @@ export default function MissionEngine({ project }: MissionEngineProps) {
       return;
     }
     if (userAnswer === step.answer) {
+      setShowHint(false);
       setFeedback(`Correct. ${step.buildText}`);
       setCompletedStepIds((current) => (current.includes(step.id) ? current : [...current, step.id]));
       if (stepIndex < project.steps.length - 1) {
@@ -35,7 +41,7 @@ export default function MissionEngine({ project }: MissionEngineProps) {
         }, 900);
       }
     } else {
-      setFeedback(`Not quite. Hint: ${step.hint}`);
+      setFeedback('Not quite. Try again, or click Show Hint if you need help.');
     }
   }
 
@@ -45,6 +51,7 @@ export default function MissionEngine({ project }: MissionEngineProps) {
     setStepIndex(0);
     setFeedback('');
     setMode('2d');
+    setShowHint(false);
   }
 
   return (
@@ -71,6 +78,7 @@ export default function MissionEngine({ project }: MissionEngineProps) {
               onClick={() => {
                 setStepIndex(index);
                 setFeedback('');
+                setShowHint(false);
               }}
             >
               {item.id}
@@ -82,9 +90,12 @@ export default function MissionEngine({ project }: MissionEngineProps) {
           <span className="eyebrow">Step {step.id}</span>
           <h3>{step.title}</h3>
           <p>{step.question}</p>
-          <div className="formula-box">
-            <strong>Formula guide:</strong> {step.formula}
-          </div>
+          {showHint && (
+            <div className="formula-box">
+              <strong>Formula guide:</strong> {step.formula || step.hint}
+              {step.hint && step.formula !== step.hint && <span> — {step.hint}</span>}
+            </div>
+          )}
           <label className="answer-row">
             <span>Your answer</span>
             <input
@@ -98,7 +109,9 @@ export default function MissionEngine({ project }: MissionEngineProps) {
           </label>
           <div className="action-row">
             <button className="btn btn-primary" type="button" onClick={checkAnswer}>Check & Build</button>
-            <button className="btn btn-ghost" type="button" onClick={() => setFeedback(step.hint)}>Show Hint</button>
+            <button className="btn btn-ghost" type="button" onClick={() => setShowHint((current) => !current)}>
+              {showHint ? 'Hide Hint' : 'Show Hint'}
+            </button>
           </div>
           {feedback && <div className={`feedback ${feedback.startsWith('Correct') ? 'success' : 'warning'}`}>{feedback}</div>}
         </article>
