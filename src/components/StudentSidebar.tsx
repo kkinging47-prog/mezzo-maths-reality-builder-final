@@ -3,9 +3,7 @@ import { NavLink } from 'react-router-dom';
 export default function StudentSidebar() {
   return (
     <>
-      <input id="student-sidebar-toggle" className="sidebar-check" type="checkbox" />
-      <label className="sidebar-toggle" htmlFor="student-sidebar-toggle">Menu</label>
-      <label className="student-sidebar-overlay" htmlFor="student-sidebar-toggle" />
+      <style>{`.student-app-content{margin-left:280px}.student-app-content .site-header{display:none}.student-sidebar{position:fixed;top:0;left:0;width:280px;min-height:100vh;background:#4c1d95;color:white;padding:1rem;z-index:900}.student-sidebar-link{display:block;color:white;padding:.8rem}.student-sidebar-link.active{background:white;color:#4c1d95}.homepage-back.student-area{left:300px}`}</style>
       <aside className="student-sidebar" aria-label="Student navigation">
         <div className="student-sidebar-brand">
           <span className="student-logo-mark">M</span>
@@ -20,10 +18,6 @@ export default function StudentSidebar() {
           <NavLink to="/student/leaderboard" className={({ isActive }) => `student-sidebar-link${isActive ? ' active' : ''}`}>Leaderboard</NavLink>
           <NavLink to="/student/certificates" className={({ isActive }) => `student-sidebar-link${isActive ? ' active' : ''}`}>Certificates</NavLink>
         </nav>
-        <div className="student-sidebar-card">
-          <span>Builder Mode</span>
-          <strong>Use maths to build real solutions.</strong>
-        </div>
       </aside>
     </>
   );
