@@ -19,6 +19,7 @@ export default function MissionEngine({ project }: MissionEngineProps) {
   const step = project.steps[stepIndex];
   const completed = completedStepIds.length;
   const progress = Math.round((completed / project.steps.length) * 100);
+  const isBridge3DMode = project.id === 'footbridge-stream' && mode === '3d';
 
   useEffect(() => {
     setShowHint(false);
@@ -55,7 +56,7 @@ export default function MissionEngine({ project }: MissionEngineProps) {
   }
 
   return (
-    <div className="mission-grid">
+    <div className={`mission-grid ${isBridge3DMode ? 'bridge-3d-stacked' : ''}`}>
       <section className="mission-panel card">
         <div className="mission-header-row">
           <div>
@@ -118,8 +119,8 @@ export default function MissionEngine({ project }: MissionEngineProps) {
 
         {completed === project.steps.length && (
           <div className="certificate-box">
-            <strong>🏅 Mission Complete</strong>
-            <p>You have completed {project.title}. Certificate preview unlocked.</p>
+            <strong>✅ Questions Set Complete</strong>
+            <p>You have completed all questions for {project.title}. Certificate preview unlocked.</p>
             <button className="btn btn-light" type="button" onClick={resetMission}>Restart Mission</button>
           </div>
         )}
