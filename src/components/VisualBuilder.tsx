@@ -2,6 +2,7 @@ import { Project } from '../data/projects';
 import Bridge2DConstructionSite from './Bridge2DConstructionSite';
 import Playground2DConstructionSite from './Playground2DConstructionSite';
 import Ferry2DConstructionSite from './Ferry2DConstructionSite';
+import Irrigation2DConstructionSite from './Irrigation2DConstructionSite';
 
 type VisualBuilderProps = {
   project: Project;
@@ -16,6 +17,7 @@ const scenes: Record<string, string[]> = {
   'ferry-river-crossing': ['🌊', '⛴️', '⏱️', '⛽', '🎟️', '🦺'],
   'simple-cleaning-robot': ['▦', '🤖', '🧽', '↪️', '🔋', '✅'],
   'tomato-sales-market': ['🧺', '🍅', '💵', '📒', '👥', '✅'],
+  'smart-irrigation-system': ['🌱', '📏', '💧', '🚰', '🔵', '☀️'],
   'weather-balloon-launch': ['🎈', '📦', '📡', '📈', '🛰️', '🚀'],
 };
 
@@ -30,6 +32,10 @@ export default function VisualBuilder({ project, completed, mode, feedback }: Vi
 
   if (project.id === 'ferry-river-crossing' && mode === '2d') {
     return <Ferry2DConstructionSite buildStage={completed} feedback={feedback} />;
+  }
+
+  if (project.id === 'smart-irrigation-system' && mode === '2d') {
+    return <Irrigation2DConstructionSite buildStage={completed} feedback={feedback} />;
   }
 
   const parts = scenes[project.id] ?? ['📐', '🧮', '🏗️', '✅'];
