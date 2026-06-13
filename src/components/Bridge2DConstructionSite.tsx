@@ -1,6 +1,7 @@
 type Bridge2DConstructionSiteProps = {
   buildStage: number;
   feedback?: string;
+  bridgeTested?: boolean;
 };
 
 const pierXs = [230, 360, 540, 670];
@@ -14,16 +15,29 @@ const encouragement = [
   'Excellent measuring! The main beams now cross the stream.',
   'Nice counting! Deck planks are forming the walking path.',
   'Well done! Side rails make the bridge safer.',
-  'Bridge Complete — Safe to Cross!'
+  'Bridge complete. Click Test Bridge to let the student cross.'
 ];
 
 function clampStage(stage: number) {
   return Math.max(0, Math.min(6, Math.floor(stage)));
 }
 
-export default function Bridge2DConstructionSite({ buildStage, feedback }: Bridge2DConstructionSiteProps) {
+function House({ x, y, body, roof }: { x: number; y: number; body: string; roof: string }) {
+  return (
+    <g transform={`translate(${x} ${y})`} filter="url(#softShadow)">
+      <rect x="0" y="34" width="70" height="56" rx="5" fill={body} />
+      <path d="M-8 38 L35 0 L78 38 Z" fill={roof} />
+      <rect x="12" y="54" width="16" height="16" rx="2" fill="#dbeafe" />
+      <rect x="42" y="54" width="16" height="16" rx="2" fill="#dbeafe" />
+      <rect x="29" y="66" width="13" height="24" rx="2" fill="#78350f" />
+    </g>
+  );
+}
+
+export default function Bridge2DConstructionSite({ buildStage, feedback, bridgeTested = false }: Bridge2DConstructionSiteProps) {
   const stage = clampStage(buildStage);
   const visibleFeedback = feedback && !feedback.includes('Not quite') ? feedback : encouragement[stage];
+  const stageSixTitle = bridgeTested ? 'Test Passed — Safe to Cross!' : 'Bridge Complete — Ready to Test!';
 
   return (
     <div className="bridge-construction-site" aria-label={`Footbridge construction site stage ${stage} of 6`}>
@@ -33,7 +47,7 @@ export default function Bridge2DConstructionSite({ buildStage, feedback }: Bridg
           <h3>Construction Stage {stage} of 6</h3>
         </div>
         <div className={stage === 6 ? 'bridge-construction-status complete' : 'bridge-construction-status'}>
-          {stage === 6 ? 'Bridge Complete — Safe to Cross!' : 'Answer correctly to build the next part'}
+          {stage === 6 ? stageSixTitle : 'Answer correctly to build the next part'}
         </div>
       </div>
 
@@ -94,6 +108,13 @@ export default function Bridge2DConstructionSite({ buildStage, feedback }: Bridg
           <path d="M556 136 C540 230 570 320 535 520" fill="none" stroke="#92400e" strokeWidth="20" strokeLinecap="round" opacity="0.85" />
           <path d="M358 136 C370 218 350 315 378 520" fill="none" stroke="#f59e0b" strokeWidth="5" strokeLinecap="round" opacity="0.7" />
           <path d="M542 136 C526 230 556 320 522 520" fill="none" stroke="#f59e0b" strokeWidth="5" strokeLinecap="round" opacity="0.7" />
+
+          <House x={72} y={148} body="#f97316" roof="#7c2d12" />
+          <House x={205} y={106} body="#fbbf24" roof="#b45309" />
+          <House x={628} y={106} body="#38bdf8" roof="#1e3a8a" />
+          <House x={760} y={158} body="#a78bfa" roof="#581c87" />
+          <text x="142" y="118" textAnchor="middle" fill="#14532d" fontSize="16" fontWeight="800">left homes</text>
+          <text x="736" y="118" textAnchor="middle" fill="#14532d" fontSize="16" fontWeight="800">right homes</text>
 
           <path
             className="construction-river"
@@ -206,14 +227,16 @@ export default function Bridge2DConstructionSite({ buildStage, feedback }: Bridg
             <g>
               <rect x="154" y="203" width="592" height="136" rx="28" fill="#fef08a" opacity="0.45" className="bridge-success-glow" filter="url(#successGlow)" />
               <text x="450" y="76" textAnchor="middle" fill="#166534" fontSize="30" fontWeight="800">
-                Bridge Complete — Safe to Cross!
+                {bridgeTested ? 'Bridge Test Passed — Safe to Cross!' : 'Bridge Complete — Ready to Test!'}
               </text>
-              <g className="bridge-walker">
-                <circle cx="195" cy="250" r="11" fill="#7c3aed" />
-                <rect x="188" y="262" width="14" height="25" rx="6" fill="#2563eb" />
-                <line x1="188" y1="276" x2="176" y2="290" stroke="#1e3a8a" strokeWidth="5" strokeLinecap="round" />
-                <line x1="202" y1="276" x2="214" y2="290" stroke="#1e3a8a" strokeWidth="5" strokeLinecap="round" />
-              </g>
+              {bridgeTested && (
+                <g className="bridge-walker">
+                  <circle cx="195" cy="250" r="11" fill="#7c3aed" />
+                  <rect x="188" y="262" width="14" height="25" rx="6" fill="#2563eb" />
+                  <line x1="188" y1="276" x2="176" y2="290" stroke="#1e3a8a" strokeWidth="5" strokeLinecap="round" />
+                  <line x1="202" y1="276" x2="214" y2="290" stroke="#1e3a8a" strokeWidth="5" strokeLinecap="round" />
+                </g>
+              )}
             </g>
           )}
         </svg>
