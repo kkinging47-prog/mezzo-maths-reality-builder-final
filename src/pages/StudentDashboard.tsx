@@ -9,7 +9,7 @@ export default function StudentDashboard() {
       <section className="section dashboard-hero">
         <div>
           <span className="eyebrow">Student dashboard</span>
-          <h1>Hello Builder, ready for today’s maths mission?</h1>
+          <h1>Welcome back, ready for today mission?</h1>
           <p>Continue from a beginner project or explore the six learning worlds.</p>
         </div>
         <Link className="btn btn-primary" to="/student/worlds">Open Maths Worlds</Link>
