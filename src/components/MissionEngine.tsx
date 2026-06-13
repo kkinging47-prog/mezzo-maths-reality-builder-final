@@ -142,6 +142,17 @@ export default function MissionEngine({ project }: MissionEngineProps) {
           </div>
         </div>
       </section>
+
+      <style>{`
+        .mission-grid.bridge-3d-stacked{grid-template-columns:1fr;max-width:1500px;margin:0 auto;align-items:stretch}
+        .mission-grid.bridge-3d-stacked .mission-panel{order:1}
+        .mission-grid.bridge-3d-stacked .builder-panel{order:2;width:100%}
+        .mission-grid.bridge-3d-stacked .question-card{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr);column-gap:1rem;align-items:end}
+        .mission-grid.bridge-3d-stacked .question-card>.eyebrow,.mission-grid.bridge-3d-stacked .question-card>h3,.mission-grid.bridge-3d-stacked .question-card>p,.mission-grid.bridge-3d-stacked .question-card>.formula-box,.mission-grid.bridge-3d-stacked .question-card>.feedback{grid-column:1/-1}
+        .mission-grid.bridge-3d-stacked .question-card .answer-row{margin-top:0}
+        .mission-grid.bridge-3d-stacked .question-card .action-row{margin-top:0;justify-content:flex-end}
+        @media (max-width:840px){.mission-grid.bridge-3d-stacked .question-card{grid-template-columns:1fr}.mission-grid.bridge-3d-stacked .question-card .action-row{justify-content:flex-start;margin-top:1rem}}
+      `}</style>
     </div>
   );
 }
