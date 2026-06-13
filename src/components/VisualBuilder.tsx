@@ -1,6 +1,7 @@
 import { Project } from '../data/projects';
 import Bridge2DConstructionSite from './Bridge2DConstructionSite';
 import Playground2DConstructionSite from './Playground2DConstructionSite';
+import Ferry2DConstructionSite from './Ferry2DConstructionSite';
 
 type VisualBuilderProps = {
   project: Project;
@@ -25,6 +26,10 @@ export default function VisualBuilder({ project, completed, mode, feedback }: Vi
 
   if (project.id === 'school-playground-layout' && mode === '2d') {
     return <Playground2DConstructionSite buildStage={completed} feedback={feedback} />;
+  }
+
+  if (project.id === 'ferry-river-crossing' && mode === '2d') {
+    return <Ferry2DConstructionSite buildStage={completed} feedback={feedback} />;
   }
 
   const parts = scenes[project.id] ?? ['📐', '🧮', '🏗️', '✅'];
