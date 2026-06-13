@@ -57,18 +57,13 @@ export default function MissionEngine({ project }: MissionEngineProps) {
   }
 
   return (
-    <div className={`mission-grid ${isBridge3DMode ? 'bridge-3d-stacked' : ''}`}>
+    <div className={`mission-grid figma-mission-grid ${isBridge3DMode ? 'bridge-3d-stacked' : ''}`}>
       <section className="mission-panel card">
-        <div className="mission-header-row">
-          <div>
-            <span className="eyebrow">Mission engine</span>
-            <h2>{project.title}</h2>
+        <div className="mission-tasks-heading">
+          <h2>Mission Tasks</h2>
+          <div className="mission-chip-row" aria-label="Math concepts">
+            {project.maths.slice(0, 3).map((item) => <span key={item}>{item}</span>)}
           </div>
-          <div className="score-pill">{progress}% complete</div>
-        </div>
-
-        <div className="progress-track" aria-label="Mission progress">
-          <span style={{ width: `${progress}%` }} />
         </div>
 
         <div className="step-list" aria-label="Mission steps">
@@ -83,7 +78,8 @@ export default function MissionEngine({ project }: MissionEngineProps) {
                 setShowHint(false);
               }}
             >
-              {item.id}
+              <span className="task-bullet" aria-hidden="true" />
+              <span className="task-label">{item.title}</span>
             </button>
           ))}
         </div>
@@ -93,9 +89,9 @@ export default function MissionEngine({ project }: MissionEngineProps) {
             <>
               <span className="eyebrow">Questions set complete</span>
               <h3>✅ Questions Set Complete</h3>
-              <p>You have completed all questions for {project.title}. The full bridge build is now unlocked in the 3D view.</p>
+              <p>You have completed all questions for {project.title}. The full build is now unlocked in the 3D view.</p>
               <div className="formula-box complete-message">
-                <strong>Next:</strong> Use the movement test below the 3D scene to let learners climb up, cross the bridge one after another, climb down, and celebrate safely.
+                <strong>Next:</strong> Switch to 3D mode and run the movement test to watch the completed build in action.
               </div>
               <div className="action-row">
                 <button className="btn btn-primary" type="button" onClick={() => setMode('3d')}>View 3D Test</button>
@@ -104,7 +100,7 @@ export default function MissionEngine({ project }: MissionEngineProps) {
             </>
           ) : (
             <>
-              <span className="eyebrow">Step {step.id}</span>
+              <span className="eyebrow">Step {step.id} of {project.steps.length}</span>
               <h3>{step.title}</h3>
               <p>{step.question}</p>
               {showHint && (
@@ -125,9 +121,9 @@ export default function MissionEngine({ project }: MissionEngineProps) {
                 <em>{step.unit}</em>
               </label>
               <div className="action-row">
-                <button className="btn btn-primary" type="button" onClick={checkAnswer}>Check & Build</button>
+                <button className="btn btn-primary" type="button" onClick={checkAnswer}>Check Answer</button>
                 <button className="btn btn-ghost" type="button" onClick={() => setShowHint((current) => !current)}>
-                  {showHint ? 'Hide Hint' : 'Show Hint'}
+                  {showHint ? 'Hide Hint' : 'Hint'}
                 </button>
               </div>
               {feedback && <div className={`feedback ${feedback.startsWith('Correct') ? 'success' : 'warning'}`}>{feedback}</div>}
@@ -140,15 +136,19 @@ export default function MissionEngine({ project }: MissionEngineProps) {
         <div className="mode-switcher" aria-label="View mode switcher">
           {(['2d', '3d', 'vr'] as ViewMode[]).map((item) => (
             <button key={item} type="button" className={mode === item ? 'selected' : ''} onClick={() => setMode(item)}>
-              {item.toUpperCase()}
+              {item.toUpperCase()} View
             </button>
           ))}
         </div>
         <VisualBuilder project={project} completed={completed} mode={mode} feedback={feedback} />
         <div className="tools-box">
-          <strong>Mission tools</strong>
+          <strong>Unlocked Tools</strong>
           <div>
-            {project.tools.map((tool) => <span key={tool}>{tool}</span>)}
+            {project.tools.map((tool, index) => (
+              <span key={tool} className={index < completed ? 'tool-unlocked' : 'tool-locked'}>
+                {index < completed ? '✓ ' : '🔒 '}{tool}
+              </span>
+            ))}
           </div>
         </div>
       </section>
