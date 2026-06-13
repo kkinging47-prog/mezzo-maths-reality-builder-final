@@ -61,14 +61,22 @@ export const projects: Project[] = [
     ]
   },
   {
-    id: 'school-playground-layout', worldId: 'smart-city', title: 'Plan a School Playground Layout', level: 'Beginner', status: 'active', age: 'Ages 9–13', description: 'Design a playground using area, perimeter and spacing.', maths: ['Area', 'Perimeter', 'Multiplication', 'Planning'], tools: ['Measuring tape', 'Grid paper', 'Safety cones'],
+    id: 'school-playground-layout',
+    worldId: 'smart-city',
+    title: 'Build a Safe School Playground',
+    level: 'Beginner',
+    status: 'active',
+    age: 'Ages 9–13',
+    description: 'Students use area, spacing, division and perimeter to turn an empty school field into a safe playground with mats, swings, a slide and fencing.',
+    maths: ['Area', 'Perimeter', 'Division', 'Multiplication', 'Safety planning'],
+    tools: ['Measuring tape', 'Boundary pegs', 'Safety mats', 'Swing set', 'Slide ladder', 'Fence and gate'],
     steps: [
-      { id: 1, title: 'Measure the Field', question: 'A playground is 20m long and 10m wide. What is its area?', answer: 200, unit: 'm²', hint: 'Area = length × width.', formula: '20 × 10', buildText: 'The playground ground appears.' },
-      { id: 2, title: 'Fence the Space', question: 'What is the perimeter of a 20m by 10m playground?', answer: 60, unit: 'm', hint: 'Add all four sides.', formula: '20 + 10 + 20 + 10', buildText: 'A safety fence surrounds the playground.' },
-      { id: 3, title: 'Divide Into Zones', question: 'Half of 200m² is used for football. How many square metres is that?', answer: 100, unit: 'm²', hint: 'Half means divide by 2.', formula: '200 ÷ 2', buildText: 'The football zone is marked.' },
-      { id: 4, title: 'Set Bench Spaces', question: 'If each bench needs 5m² and you have 20m², how many benches fit?', answer: 4, unit: 'benches', hint: 'Divide 20 by 5.', formula: '20 ÷ 5', buildText: 'Four benches appear for pupils.' },
-      { id: 5, title: 'Plant Shade Trees', question: 'You plant trees every 5m along a 20m side, including both ends. How many tree positions?', answer: 5, unit: 'trees', hint: 'Positions are 0, 5, 10, 15 and 20.', formula: 'Count positions', buildText: 'Shade trees grow around the field.' },
-      { id: 6, title: 'Final Layout Score', question: 'The playground has 4 zones with 25 points each. What is the total design score?', answer: 100, unit: 'points', hint: 'Multiply 4 by 25.', formula: '4 × 25', buildText: 'The school playground plan is approved.' }
+      { id: 1, title: 'Measure the Playground Land', question: 'The school playground space is 12 metres long and 8 metres wide. What is the area of the playground?', answer: 96, unit: 'm²', hint: 'Area = length × width. So calculate 12 × 8.', formula: 'Area = length × width', buildText: 'The playground land has been measured and marked with pegs and ropes.' },
+      { id: 2, title: 'Mark a Safe Play Zone', question: 'For safety, the playground must leave 2 metres of free space on the left side and 2 metres on the right side. If the full width is 8 metres, what width remains for the main play zone?', answer: 4, unit: 'm', hint: 'Subtract the two safety spaces: 8 − 2 − 2.', formula: 'Safe width = 8 − 2 − 2', buildText: 'The safe play zone has been marked inside the playground.' },
+      { id: 3, title: 'Lay Soft Safety Mats', question: 'The safe play zone covers 32 square metres. Each safety mat covers 4 square metres. How many safety mats are needed?', answer: 8, unit: 'mats', hint: 'Divide the total area by the area covered by one mat: 32 ÷ 4.', formula: 'Mats = 32 ÷ 4', buildText: 'Colourful rubber safety mats have been laid to protect pupils.' },
+      { id: 4, title: 'Install the Swing Set', question: 'The playground will have 3 swings. Each swing needs 2 chains. How many chains are needed altogether?', answer: 6, unit: 'chains', hint: 'Multiply the number of swings by the chains for each swing: 3 × 2.', formula: 'Chains = 3 × 2', buildText: 'A strong swing set with three seats has been installed.' },
+      { id: 5, title: 'Build the Slide Ladder', question: 'The slide platform is 150 cm high. The ladder has one step every 30 cm. How many ladder steps are needed?', answer: 5, unit: 'steps', hint: 'Divide the height by the space between steps: 150 ÷ 30.', formula: 'Steps = 150 ÷ 30', buildText: 'The slide and five-step ladder have been built.' },
+      { id: 6, title: 'Fence the Playground', question: 'The playground is 12 metres long and 8 metres wide. The total perimeter is 40 metres. If the gate space is 4 metres wide, how many metres of fencing are needed?', answer: 36, unit: 'm', hint: 'Subtract the gate space from the total perimeter: 40 − 4.', formula: 'Fence length = 40 − 4', buildText: 'The fence, gate and safety signs have been added. The playground is ready for testing.' }
     ]
   },
   {
