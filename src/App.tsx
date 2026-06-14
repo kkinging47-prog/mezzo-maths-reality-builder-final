@@ -7,6 +7,7 @@ import StudentProgressTiny from './pages/StudentProgressTiny';
 import StudentLeaderboard from './pages/StudentLeaderboard';
 import StudentCertificates from './pages/StudentCertificates';
 import StudentPlaceholderPage from './pages/StudentPlaceholderPage';
+import EquationBuilderPage from './pages/EquationBuilderPage';
 import ProjectPage from './pages/ProjectPage';
 import TeacherDashboard from './pages/TeacherDashboard';
 import SchoolAdminDashboard from './pages/SchoolAdminDashboard';
@@ -39,7 +40,7 @@ export default function App() {
           <Route path="/student/dashboard" element={<StudentDashboard />} />
           <Route path="/student/worlds" element={<StudentPlaceholderPage mode="worlds" />} />
           <Route path="/student/missions" element={<StudentPlaceholderPage mode="missions" />} />
-          <Route path="/student/equation-builder" element={<StudentPlaceholderPage mode="equation-builder" />} />
+          <Route path="/student/equation-builder" element={<EquationBuilderPage />} />
           <Route path="/student/progress" element={<StudentProgressTiny />} />
           <Route path="/student/leaderboard" element={<StudentLeaderboard />} />
           <Route path="/student/certificates" element={<StudentCertificates />} />
