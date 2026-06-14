@@ -52,13 +52,12 @@ export default function LandingPage() {
           <h1>Mezzo Maths Reality Builder</h1>
           <h2>Learn Mathematics by Building Real-World Creations</h2>
           <p>
-            Transform mathematics from abstract formulas into practical, visual, and exciting experiences.
-            Students solve equations, apply geometry, calculate measurements, and use mathematical thinking
-            to build amazing real-life structures.
+            Equations become bridges. Area becomes playgrounds. Speed becomes ferries. Measurement becomes safer roads.
+            Students solve practical challenges and watch their answers build amazing real-life structures step by step.
           </p>
           <div className="figma-actions">
             <Link className="figma-btn figma-btn-primary" to="/student/worlds">Enter Maths World</Link>
-            <Link className="figma-btn figma-btn-outline" to="/demo">Watch Demo</Link>
+            <Link className="figma-btn figma-btn-outline" to="/student/equation-builder">Try Equation Builder</Link>
           </div>
         </section>
 
