@@ -9,7 +9,7 @@ import Ferry3DConstructionSite from './Ferry3DConstructionSite';
 import Irrigation2DConstructionSite from './Irrigation2DConstructionSite';
 import Irrigation3DConstructionSite from './Irrigation3DConstructionSite';
 import SmartParking2DConstructionSite from './SmartParking2DConstructionSite';
-import SmartParking3DConstructionSite from './SmartParking3DConstructionSiteV2';
+import SmartParking3DConstructionSite from './SmartParking3DConstructionSiteV3';
 import FloodDrainage2DConstructionSite from './FloodDrainage2DConstructionSite';
 
 type VisualBuilderProps = {
