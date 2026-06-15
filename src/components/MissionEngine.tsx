@@ -20,7 +20,7 @@ export default function MissionEngine({ project }: MissionEngineProps) {
   const completed = completedStepIds.length;
   const missionComplete = completed === project.steps.length;
   const progress = Math.round((completed / project.steps.length) * 100);
-  const isBridge3DMode = project.id === 'footbridge-stream' && mode === '3d';
+  const isBridgeImmersiveMode = project.id === 'footbridge-stream' && (mode === '3d' || mode === 'vr');
 
   useEffect(() => {
     setShowHint(false);
@@ -57,7 +57,7 @@ export default function MissionEngine({ project }: MissionEngineProps) {
   }
 
   return (
-    <div className={`mission-grid figma-mission-grid ${isBridge3DMode ? 'bridge-3d-stacked' : ''}`}>
+    <div className={`mission-grid figma-mission-grid ${isBridgeImmersiveMode ? 'bridge-3d-stacked' : ''}`}>
       <section className="mission-panel card">
         <div className="mission-tasks-heading">
           <h2>Mission Tasks</h2>
@@ -89,12 +89,13 @@ export default function MissionEngine({ project }: MissionEngineProps) {
             <>
               <span className="eyebrow">Questions set complete</span>
               <h3>✅ Questions Set Complete</h3>
-              <p>You have completed all questions for {project.title}. The full build is now unlocked in the 3D view.</p>
+              <p>You have completed all questions for {project.title}. The full build is now unlocked in the 3D and VR views.</p>
               <div className="formula-box complete-message">
-                <strong>Next:</strong> Switch to 3D mode and run the movement test to watch the completed build in action.
+                <strong>Next:</strong> Switch to 3D or VR mode and run the movement test to watch the completed build in action.
               </div>
               <div className="action-row">
                 <button className="btn btn-primary" type="button" onClick={() => setMode('3d')}>View 3D Test</button>
+                {project.id === 'footbridge-stream' && <button className="btn btn-primary" type="button" onClick={() => setMode('vr')}>Enter VR Test</button>}
                 <button className="btn btn-ghost" type="button" onClick={resetMission}>Restart Mission</button>
               </div>
             </>
@@ -162,7 +163,7 @@ export default function MissionEngine({ project }: MissionEngineProps) {
         .mission-grid.bridge-3d-stacked .question-card .answer-row{margin-top:0}
         .mission-grid.bridge-3d-stacked .question-card .action-row{margin-top:0;justify-content:flex-end}
         .mission-grid.bridge-3d-stacked .question-card.complete-frame{background:linear-gradient(135deg,rgba(220,252,231,.96),rgba(239,246,255,.96));border:1px solid rgba(16,185,129,.22)}
-        .mission-grid.bridge-3d-stacked .question-card.complete-frame .action-row{grid-column:1/-1;justify-content:flex-end;margin-top:.25rem}
+        .mission-grid.bridge-3d-stacked .question-card.complete-frame .action-row{grid-column:1/-1;justify-content:flex-end;margin-top:.25rem;gap:.65rem;flex-wrap:wrap}
         .mission-grid.bridge-3d-stacked .question-card.complete-frame h3{color:#065f46}.mission-grid.bridge-3d-stacked .complete-message{background:white;border-color:rgba(16,185,129,.2);color:#166534}
         @media (max-width:840px){.mission-grid.bridge-3d-stacked .question-card{grid-template-columns:1fr;min-height:auto}.mission-grid.bridge-3d-stacked .question-card .action-row{justify-content:flex-start;margin-top:1rem}.mission-grid.bridge-3d-stacked .question-card.complete-frame .action-row{justify-content:flex-start}}
       `}</style>
