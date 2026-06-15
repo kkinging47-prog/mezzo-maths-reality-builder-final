@@ -2,8 +2,9 @@ import { Project } from '../data/projects';
 import Bridge2DConstructionSite from './Bridge2DConstructionSite';
 import Bridge3DConstructionSite from './Bridge3DConstructionSiteV3';
 import Playground2DConstructionSite from './Playground2DConstructionSite';
-import Playground3DConstructionSite from './Playground3DConstructionSite';
+import Playground3DConstructionSite from './Playground3DConstructionSiteV2';
 import Ferry2DConstructionSite from './Ferry2DConstructionSite';
+import Ferry3DConstructionSite from './Ferry3DConstructionSite';
 import Irrigation2DConstructionSite from './Irrigation2DConstructionSite';
 import SmartParking2DConstructionSite from './SmartParking2DConstructionSite';
 import FloodDrainage2DConstructionSite from './FloodDrainage2DConstructionSite';
@@ -34,13 +35,16 @@ export default function VisualBuilder({ project, completed, mode, feedback }: Vi
     return <Bridge2DConstructionSite buildStage={completed} feedback={feedback} />;
   }
 
-  // Keep the safe school playground on its dedicated real 3D construction scene.
   if (project.id === 'school-playground-layout' && mode === '3d') {
     return <Playground3DConstructionSite buildStage={completed} feedback={feedback} />;
   }
 
   if (project.id === 'school-playground-layout' && mode === '2d') {
     return <Playground2DConstructionSite buildStage={completed} feedback={feedback} />;
+  }
+
+  if (project.id === 'ferry-river-crossing' && mode === '3d') {
+    return <Ferry3DConstructionSite buildStage={completed} feedback={feedback} />;
   }
 
   if (project.id === 'ferry-river-crossing' && mode === '2d') {
