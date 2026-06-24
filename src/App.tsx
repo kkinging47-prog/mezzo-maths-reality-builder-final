@@ -16,6 +16,7 @@ import SponsorDashboard from './pages/SponsorDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import DemoPage from './pages/DemoPage';
 import VRPreviewPage from './pages/VRPreviewPage';
+import AnimatedRealityLabPage from './pages/AnimatedRealityLabPageV5';
 import NotFoundPage from './pages/NotFoundPage';
 import StudentSidebar from './components/StudentSidebar';
 
@@ -52,6 +53,7 @@ export default function App() {
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/demo" element={<DemoPage />} />
           <Route path="/vr-preview" element={<VRPreviewPage />} />
+          <Route path="/animated-reality-lab" element={<AnimatedRealityLabPage />} />
           <Route path="/worlds" element={<Navigate to="/student/worlds" replace />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

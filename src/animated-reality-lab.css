@@ -1,0 +1,305 @@
+.animated-reality-lab {
+  min-height: 100vh;
+  padding: 5.5rem clamp(0.75rem, 2vw, 2rem) 1.25rem;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.lab-hero {
+  padding: clamp(0.9rem, 1.7vw, 1.25rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(220px, 0.8fr);
+  gap: 1rem;
+  align-items: center;
+}
+
+.lab-hero h1 {
+  margin: 0.3rem 0 0.45rem;
+  font-size: clamp(1.9rem, 3.4vw, 3.2rem);
+  line-height: 0.96;
+  letter-spacing: -0.055em;
+}
+
+.lab-hero p,
+.lab-compact-copy,
+.spline-ready-card p,
+.rive-mascot-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.lab-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  justify-content: flex-end;
+}
+
+.lab-stack span,
+.lab-score-row span,
+.spline-ready-card span {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.48rem 0.7rem;
+  background: rgba(255,255,255,0.11);
+  border: 1px solid var(--border);
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+.lab-board {
+  min-height: min(76vh, 780px);
+  max-height: 840px;
+  padding: 0.75rem;
+  display: grid;
+  grid-template-columns: minmax(245px, 0.65fr) minmax(460px, 1.55fr) minmax(190px, 0.45fr);
+  gap: 0.75rem;
+  overflow: hidden;
+}
+
+.lab-side-panel {
+  border: 1px solid var(--border);
+  background: rgba(7, 20, 52, 0.72);
+  border-radius: 1.1rem;
+  padding: 0.82rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  min-height: 0;
+}
+
+.lab-side-panel h2,
+.lab-side-panel h3 {
+  margin: 0;
+  letter-spacing: -0.04em;
+}
+
+.lab-side-panel h2 {
+  font-size: clamp(1.65rem, 2.7vw, 2.35rem);
+  line-height: 0.98;
+}
+
+.lab-score-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+
+.lab-score-row span {
+  justify-content: center;
+  padding: 0.45rem 0.35rem;
+}
+
+.lab-progress {
+  height: 0.62rem;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.12);
+  overflow: hidden;
+}
+
+.lab-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--gold), var(--green), var(--blue));
+  transition: width 0.35s ease;
+}
+
+.lab-action-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+}
+
+.lab-action-row .btn {
+  padding: 0.7rem 0.85rem;
+}
+
+.reward-pop-card {
+  min-height: 3rem;
+  display: grid;
+  place-items: center;
+  border-radius: 1rem;
+  background: rgba(245, 158, 11, 0.13);
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  color: #fde68a;
+  font-weight: 900;
+  animation: rewardPulse 0.55s ease;
+}
+
+@keyframes rewardPulse {
+  0% { transform: scale(0.96); opacity: 0.65; }
+  50% { transform: scale(1.03); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.rive-mascot-card {
+  margin-top: auto;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.65rem;
+  align-items: center;
+  border-radius: 1rem;
+  padding: 0.7rem;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.24);
+}
+
+.mascot-bounce {
+  width: 3rem;
+  height: 3rem;
+  display: grid;
+  place-items: center;
+  border-radius: 1rem;
+  font-size: 1.9rem;
+  background: rgba(255,255,255,0.12);
+  animation: mascotBounce 1.8s ease-in-out infinite;
+}
+
+@keyframes mascotBounce {
+  0%, 100% { transform: translateY(0) rotate(-4deg); }
+  50% { transform: translateY(-0.35rem) rotate(4deg); }
+}
+
+.lab-viewport {
+  min-height: 560px;
+  overflow: hidden;
+  border-radius: 1.15rem;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: linear-gradient(180deg, rgba(14,165,233,0.18), rgba(15,23,42,0.9));
+  position: relative;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05), 0 24px 50px rgba(0,0,0,0.18);
+}
+
+.lab-viewport::after {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 22% 18%, rgba(255,255,255,0.22), transparent 19%),
+    linear-gradient(180deg, transparent 64%, rgba(2,6,23,0.17));
+}
+
+.lab-version-badge,
+.lab-viewport-label {
+  position: absolute;
+  z-index: 2;
+  top: 0.75rem;
+  left: 0.75rem;
+  padding: 0.46rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(7, 20, 52, 0.7);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: #e0f2fe;
+  font-weight: 900;
+  font-size: 0.8rem;
+  backdrop-filter: blur(10px);
+}
+
+.lab-viewport canvas {
+  display: block;
+}
+
+.lab-step-list {
+  display: grid;
+  gap: 0.45rem;
+  overflow: auto;
+  padding-right: 0.15rem;
+}
+
+.lab-step {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 0.75rem;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid transparent;
+}
+
+.lab-step span {
+  width: 1.65rem;
+  height: 1.65rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.12);
+  color: white;
+  font-weight: 900;
+  font-size: 0.8rem;
+}
+
+.lab-step.current {
+  border-color: rgba(96, 165, 250, 0.55);
+  background: rgba(37, 99, 235, 0.18);
+}
+
+.lab-step.done {
+  border-color: rgba(16, 185, 129, 0.45);
+  background: rgba(16, 185, 129, 0.15);
+}
+
+.lab-step.done span {
+  background: var(--green);
+  color: #052e1f;
+}
+
+.spline-ready-card {
+  margin-top: auto;
+  border-radius: 1rem;
+  padding: 0.75rem;
+  display: grid;
+  gap: 0.5rem;
+  background:
+    radial-gradient(circle at 15% 15%, rgba(236,72,153,0.28), transparent 34%),
+    radial-gradient(circle at 80% 30%, rgba(14,165,233,0.24), transparent 30%),
+    rgba(255,255,255,0.07);
+  border: 1px solid var(--border);
+}
+
+@media (max-width: 1100px) {
+  .lab-board {
+    grid-template-columns: minmax(260px, 0.8fr) minmax(420px, 1.2fr);
+    max-height: none;
+  }
+
+  .lab-side-panel.slim {
+    grid-column: 1 / -1;
+  }
+
+  .lab-step-list {
+    grid-template-columns: repeat(6, minmax(120px, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .animated-reality-lab {
+    padding-top: 5rem;
+  }
+
+  .lab-hero,
+  .lab-board {
+    grid-template-columns: 1fr;
+  }
+
+  .lab-stack {
+    justify-content: flex-start;
+  }
+
+  .lab-board {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .lab-viewport {
+    min-height: 420px;
+  }
+
+  .lab-action-row {
+    grid-template-columns: 1fr;
+  }
+}
