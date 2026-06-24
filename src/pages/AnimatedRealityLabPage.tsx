@@ -5,33 +5,17 @@ import * as THREE from 'three';
 
 const DECK_Y = 0.58;
 const BANK_Y = 0.22;
+const BRIDGE_HALF_LENGTH = 3.05;
+const BRIDGE_WIDTH = 1.34;
 
 const buildSteps = [
   { label: 'Survey', reward: '+5 XP', note: 'Measure the river and mark both banks' },
   { label: 'Pillars', reward: '+15 coins', note: 'Raise strong support posts from the riverbed' },
-  { label: 'Planks', reward: '+20 coins', note: 'Lay wooden planks across the stream' },
-  { label: 'Rails', reward: '+10 XP', note: 'Add safe side rails for children' },
-  { label: 'Stairs', reward: '+1 star', note: 'Connect the stairs neatly to both bridge ends' },
+  { label: 'Planks', reward: '+20 coins', note: 'Lay bridge planks from one bank to the other' },
+  { label: 'Rails', reward: '+10 XP', note: 'Add safety rails for children' },
+  { label: 'Stairs', reward: '+1 star', note: 'Connect both banks neatly to the deck' },
   { label: 'Test', reward: '+2 stars', note: 'Let a learner cross the finished bridge safely' },
 ];
-
-function FloatingCoin({ position, delay = 0 }: { position: [number, number, number]; delay?: number }) {
-  const ref = useRef<THREE.Mesh>(null);
-
-  useFrame(({ clock }) => {
-    if (!ref.current) return;
-    const t = clock.elapsedTime + delay;
-    ref.current.rotation.y = t * 2.4;
-    ref.current.position.y = position[1] + Math.sin(t * 2) * 0.08;
-  });
-
-  return (
-    <mesh ref={ref} position={position} castShadow>
-      <cylinderGeometry args={[0.14, 0.14, 0.04, 32]} />
-      <meshStandardMaterial color="#fbbf24" metalness={0.5} roughness={0.2} />
-    </mesh>
-  );
-}
 
 function Tree({ position, scale = 1 }: { position: [number, number, number]; scale?: number }) {
   return (
@@ -40,12 +24,12 @@ function Tree({ position, scale = 1 }: { position: [number, number, number]; sca
         <cylinderGeometry args={[0.08, 0.12, 0.68, 10]} />
         <meshStandardMaterial color="#854d0e" roughness={0.85} />
       </mesh>
-      <mesh position={[0, 0.83, 0]} castShadow>
-        <coneGeometry args={[0.4, 0.88, 14]} />
+      <mesh position={[0, 0.8, 0]} castShadow>
+        <coneGeometry args={[0.42, 0.85, 14]} />
         <meshStandardMaterial color="#166534" roughness={0.72} />
       </mesh>
-      <mesh position={[0.08, 1.05, 0.04]} castShadow>
-        <coneGeometry args={[0.3, 0.68, 14]} />
+      <mesh position={[0.04, 1.02, 0.02]} castShadow>
+        <coneGeometry args={[0.3, 0.62, 14]} />
         <meshStandardMaterial color="#22c55e" roughness={0.72} />
       </mesh>
     </group>
@@ -79,18 +63,18 @@ function WaterRipples() {
 
   useFrame(({ clock }) => {
     if (!groupRef.current) return;
-    groupRef.current.position.x = Math.sin(clock.elapsedTime * 0.8) * 0.12;
+    groupRef.current.position.x = Math.sin(clock.elapsedTime * 0.8) * 0.1;
     groupRef.current.children.forEach((child, index) => {
-      child.position.x += Math.sin(clock.elapsedTime * 1.4 + index) * 0.0018;
+      child.position.x += Math.sin(clock.elapsedTime * 1.3 + index) * 0.0012;
     });
   });
 
   return (
-    <group ref={groupRef} position={[0, 0.048, 0]}>
-      {[-0.62, -0.25, 0.12, 0.48, 0.78].map((z, index) => (
-        <mesh key={z} position={[index % 2 ? -0.35 : 0.4, 0, z]} rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[5.8 - index * 0.35, 0.035]} />
-          <meshStandardMaterial color="#dffcff" transparent opacity={0.55} roughness={0.25} />
+    <group ref={groupRef} position={[0, 0.052, 0]}>
+      {[-0.66, -0.32, 0.02, 0.36, 0.68].map((z, index) => (
+        <mesh key={z} position={[index % 2 ? -0.55 : 0.42, 0, z]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[5.25 - index * 0.28, 0.028]} />
+          <meshStandardMaterial color="#e0ffff" transparent opacity={0.5} roughness={0.22} />
         </mesh>
       ))}
     </group>
@@ -102,19 +86,19 @@ function SurveyMarkers({ buildLevel }: { buildLevel: number }) {
 
   return (
     <group>
-      {[-3.45, 3.45].map((x) => (
-        <group key={x} position={[x, BANK_Y + 0.18, -1.25]}>
+      {[-3.48, 3.48].map((x) => (
+        <group key={x} position={[x, BANK_Y + 0.18, -1.15]}>
           <mesh castShadow>
             <cylinderGeometry args={[0.035, 0.035, 0.55, 8]} />
             <meshStandardMaterial color="#ef4444" />
           </mesh>
           <mesh position={[0, 0.25, 0]} castShadow>
-            <boxGeometry args={[0.38, 0.16, 0.035]} />
+            <boxGeometry args={[0.36, 0.14, 0.035]} />
             <meshStandardMaterial color="#fef3c7" />
           </mesh>
         </group>
       ))}
-      <mesh position={[0, 0.08, -1.22]} rotation={[-Math.PI / 2, 0, 0]}>
+      <mesh position={[0, 0.075, -1.15]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[6.7, 0.035]} />
         <meshStandardMaterial color="#facc15" />
       </mesh>
@@ -122,60 +106,62 @@ function SurveyMarkers({ buildLevel }: { buildLevel: number }) {
   );
 }
 
-function StepBlock({ x, height, width = 0.34 }: { x: number; height: number; width?: number }) {
+function EntryPlatform({ side }: { side: 'left' | 'right' }) {
+  const x = side === 'left' ? -3.48 : 3.48;
+  return (
+    <mesh position={[x, DECK_Y - 0.045, 0]} castShadow receiveShadow>
+      <boxGeometry args={[0.56, 0.09, BRIDGE_WIDTH]} />
+      <meshStandardMaterial color="#b08d57" roughness={0.78} />
+    </mesh>
+  );
+}
+
+function StairBlock({ x, height, width = 0.34 }: { x: number; height: number; width?: number }) {
   return (
     <mesh position={[x, BANK_Y + height / 2, 0]} castShadow receiveShadow>
-      <boxGeometry args={[width, height, 1.26]} />
-      <meshStandardMaterial color="#d6a86c" roughness={0.78} />
+      <boxGeometry args={[width, height, BRIDGE_WIDTH]} />
+      <meshStandardMaterial color="#d7b47a" roughness={0.78} />
     </mesh>
   );
 }
 
 function EntryStairs({ side }: { side: 'left' | 'right' }) {
-  const direction = side === 'left' ? 1 : -1;
-  const outerX = side === 'left' ? -4.32 : 4.32;
-  const stepHeights = [0.12, 0.22, 0.32, 0.42];
+  const isLeft = side === 'left';
+  const direction = isLeft ? 1 : -1;
+  const outerX = isLeft ? -4.82 : 4.82;
+  const heights = [0.08, 0.15, 0.22, 0.29, DECK_Y - BANK_Y];
 
   return (
     <group>
-      {stepHeights.map((height, index) => (
-        <StepBlock key={`${side}-${height}`} x={outerX + direction * index * 0.36} height={height} />
+      {heights.map((height, index) => (
+        <StairBlock key={`${side}-${index}`} x={outerX + direction * index * 0.34} height={height} />
       ))}
-      <mesh position={[outerX + direction * 1.1, BANK_Y + 0.235, side === 'left' ? -0.74 : 0.74]} castShadow>
-        <cylinderGeometry args={[0.035, 0.035, 0.48, 8]} />
-        <meshStandardMaterial color="#92400e" />
-      </mesh>
+      <EntryPlatform side={side} />
+      {[-0.72, 0.72].map((z) => (
+        <mesh key={`${side}-hand-${z}`} position={[outerX + direction * 2.2, BANK_Y + 0.45, z]} castShadow>
+          <boxGeometry args={[1.8, 0.06, 0.05]} />
+          <meshStandardMaterial color="#92400e" roughness={0.58} />
+        </mesh>
+      ))}
     </group>
   );
 }
 
-function BridgeDeck({ buildLevel }: { buildLevel: number }) {
-  const visiblePlanks = Math.max(0, Math.min(10, buildLevel >= 3 ? 10 : buildLevel >= 2 ? 5 : 0));
+function RisingSupport({ x, z, color, delay = 0 }: { x: number; z: number; color: string; delay?: number }) {
+  const ref = useRef<THREE.Group>(null);
+
+  useFrame(({ clock }) => {
+    if (!ref.current) return;
+    const target = Math.min(1, Math.max(0.12, (clock.elapsedTime - delay) * 1.4));
+    ref.current.scale.y = THREE.MathUtils.lerp(ref.current.scale.y, target, 0.12);
+  });
 
   return (
-    <group position={[0, DECK_Y, 0]}>
-      {visiblePlanks > 0 && (
-        <>
-          <mesh position={[0, -0.08, -0.55]} castShadow receiveShadow>
-            <boxGeometry args={[6.85, 0.12, 0.14]} />
-            <meshStandardMaterial color="#7c2d12" roughness={0.62} />
-          </mesh>
-          <mesh position={[0, -0.08, 0.55]} castShadow receiveShadow>
-            <boxGeometry args={[6.85, 0.12, 0.14]} />
-            <meshStandardMaterial color="#7c2d12" roughness={0.62} />
-          </mesh>
-        </>
-      )}
-
-      {Array.from({ length: visiblePlanks }).map((_, index) => {
-        const x = -3.05 + index * 0.68;
-        return (
-          <mesh key={index} position={[x, 0.02, 0]} castShadow receiveShadow>
-            <boxGeometry args={[0.56, 0.14, 1.38]} />
-            <meshStandardMaterial color={index % 2 ? '#a16207' : '#c47c24'} roughness={0.68} />
-          </mesh>
-        );
-      })}
+    <group ref={ref} position={[x, 0.08, z]} scale={[1, 0.12, 1]}>
+      <mesh position={[0, 0.31, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.11, 0.16, 0.72, 14]} />
+        <meshStandardMaterial color={color} roughness={0.78} />
+      </mesh>
     </group>
   );
 }
@@ -185,20 +171,61 @@ function BridgeSupports({ buildLevel }: { buildLevel: number }) {
 
   return (
     <group>
-      {[-2.85, -1.4, 0, 1.4, 2.85].map((x, index) => (
+      {[-2.6, -1.3, 0, 1.3, 2.6].map((x, index) => (
         <group key={x}>
-          {[-0.58, 0.58].map((z) => (
-            <mesh key={`${x}-${z}`} position={[x, 0.31, z]} castShadow receiveShadow>
-              <cylinderGeometry args={[0.11, 0.16, 0.76, 14]} />
-              <meshStandardMaterial color={index === 2 ? '#6b7280' : '#8b5a2b'} roughness={0.78} />
-            </mesh>
+          {[-0.52, 0.52].map((z) => (
+            <RisingSupport key={`${x}-${z}`} x={x} z={z} delay={index * 0.08} color={index === 2 ? '#6b7280' : '#8b5a2b'} />
           ))}
-          <mesh position={[x, 0.7, 0]} castShadow receiveShadow>
-            <boxGeometry args={[0.16, 0.13, 1.42]} />
+          <mesh position={[x, DECK_Y - 0.13, 0]} castShadow receiveShadow>
+            <boxGeometry args={[0.18, 0.14, 1.32]} />
             <meshStandardMaterial color="#78350f" roughness={0.7} />
           </mesh>
         </group>
       ))}
+    </group>
+  );
+}
+
+function AnimatedPlank({ index, x }: { index: number; x: number }) {
+  const ref = useRef<THREE.Mesh>(null);
+
+  useFrame(({ clock }) => {
+    if (!ref.current) return;
+    const targetY = DECK_Y + Math.sin(clock.elapsedTime * 0.9 + index) * 0.004;
+    ref.current.position.y = THREE.MathUtils.lerp(ref.current.position.y, targetY, 0.1);
+    ref.current.rotation.z = THREE.MathUtils.lerp(ref.current.rotation.z, 0, 0.12);
+  });
+
+  return (
+    <mesh ref={ref} position={[x, DECK_Y - 0.55 - index * 0.015, 0]} rotation={[0, 0, index % 2 ? 0.12 : -0.12]} castShadow receiveShadow>
+      <boxGeometry args={[0.52, 0.13, BRIDGE_WIDTH]} />
+      <meshStandardMaterial color={index % 2 ? '#a16207' : '#c47c24'} roughness={0.72} />
+    </mesh>
+  );
+}
+
+function BridgeDeck({ buildLevel }: { buildLevel: number }) {
+  const plankCount = buildLevel >= 3 ? 12 : 0;
+
+  return (
+    <group>
+      {buildLevel >= 2 && (
+        <>
+          <mesh position={[0, DECK_Y - 0.15, -0.54]} castShadow receiveShadow>
+            <boxGeometry args={[BRIDGE_HALF_LENGTH * 2 + 0.25, 0.14, 0.15]} />
+            <meshStandardMaterial color="#7c2d12" roughness={0.62} />
+          </mesh>
+          <mesh position={[0, DECK_Y - 0.15, 0.54]} castShadow receiveShadow>
+            <boxGeometry args={[BRIDGE_HALF_LENGTH * 2 + 0.25, 0.14, 0.15]} />
+            <meshStandardMaterial color="#7c2d12" roughness={0.62} />
+          </mesh>
+        </>
+      )}
+
+      {Array.from({ length: plankCount }).map((_, index) => {
+        const x = -2.86 + index * 0.52;
+        return <AnimatedPlank key={index} index={index} x={x} />;
+      })}
     </group>
   );
 }
@@ -208,22 +235,22 @@ function BridgeRails({ buildLevel }: { buildLevel: number }) {
 
   return (
     <group position={[0, DECK_Y + 0.34, 0]}>
-      {[-0.84, 0.84].map((z) => (
+      {[-0.78, 0.78].map((z) => (
         <group key={z}>
           <mesh position={[0, 0.15, z]} castShadow>
-            <boxGeometry args={[6.75, 0.09, 0.08]} />
+            <boxGeometry args={[6.35, 0.08, 0.07]} />
             <meshStandardMaterial color="#92400e" roughness={0.55} />
           </mesh>
-          <mesh position={[0, -0.12, z]} castShadow>
-            <boxGeometry args={[6.55, 0.07, 0.065]} />
+          <mesh position={[0, -0.13, z]} castShadow>
+            <boxGeometry args={[6.05, 0.065, 0.06]} />
             <meshStandardMaterial color="#b45309" roughness={0.6} />
           </mesh>
         </group>
       ))}
-      {[-3.18, -2.05, -0.92, 0.22, 1.36, 2.5, 3.2].map((x) =>
-        [-0.84, 0.84].map((z) => (
-          <mesh key={`${x}-${z}`} position={[x, -0.04, z]} castShadow>
-            <boxGeometry args={[0.08, 0.58, 0.08]} />
+      {[-2.9, -1.82, -0.74, 0.34, 1.42, 2.5, 3.02].map((x) =>
+        [-0.78, 0.78].map((z) => (
+          <mesh key={`${x}-${z}`} position={[x, -0.05, z]} castShadow>
+            <boxGeometry args={[0.075, 0.56, 0.075]} />
             <meshStandardMaterial color="#78350f" roughness={0.65} />
           </mesh>
         )),
@@ -237,26 +264,27 @@ function TestChild({ active }: { active: boolean }) {
 
   useFrame(({ clock }) => {
     if (!ref.current || !active) return;
-    const t = (Math.sin(clock.elapsedTime * 0.78) + 1) / 2;
-    ref.current.position.x = -3.25 + t * 6.5;
-    ref.current.position.y = DECK_Y + 0.48 + Math.sin(clock.elapsedTime * 5) * 0.025;
+    const t = (Math.sin(clock.elapsedTime * 0.72) + 1) / 2;
+    ref.current.position.x = -2.75 + t * 5.5;
+    ref.current.position.y = DECK_Y + 0.36 + Math.sin(clock.elapsedTime * 5) * 0.018;
+    ref.current.position.z = 0;
     ref.current.rotation.y = t > 0.5 ? Math.PI / 2 : -Math.PI / 2;
   });
 
   if (!active) return null;
 
   return (
-    <group ref={ref} position={[-3.25, DECK_Y + 0.48, 0]}>
-      <mesh position={[0, 0.22, 0]} castShadow>
-        <cylinderGeometry args={[0.13, 0.15, 0.42, 16]} />
+    <group ref={ref} position={[-2.75, DECK_Y + 0.36, 0]} scale={0.72}>
+      <mesh position={[0, 0.2, 0]} castShadow>
+        <cylinderGeometry args={[0.11, 0.13, 0.38, 16]} />
         <meshStandardMaterial color="#2563eb" />
       </mesh>
-      <mesh position={[0, 0.52, 0]} castShadow>
-        <sphereGeometry args={[0.17, 18, 18]} />
+      <mesh position={[0, 0.48, 0]} castShadow>
+        <sphereGeometry args={[0.15, 18, 18]} />
         <meshStandardMaterial color="#f2c28b" />
       </mesh>
-      <mesh position={[0, 0.67, 0]} castShadow>
-        <sphereGeometry args={[0.18, 18, 18, 0, Math.PI * 2, 0, Math.PI / 2]} />
+      <mesh position={[0, 0.61, 0]} castShadow>
+        <sphereGeometry args={[0.16, 18, 18, 0, Math.PI * 2, 0, Math.PI / 2]} />
         <meshStandardMaterial color="#111827" />
       </mesh>
     </group>
@@ -265,25 +293,25 @@ function TestChild({ active }: { active: boolean }) {
 
 function EnvironmentDetails() {
   const grassPositions: [number, number, number][] = [
-    [-4.7, 0.05, -2.1], [-3.9, 0.05, 1.72], [-2.2, 0.05, -2.28], [2.35, 0.05, 2.2], [3.8, 0.05, -1.75], [4.7, 0.05, 1.2],
+    [-4.7, 0.05, -2.25], [-4.35, 0.05, 2.15], [-2.6, 0.05, -2.35], [2.6, 0.05, 2.35], [4.35, 0.05, -2.1], [4.85, 0.05, 1.62],
   ];
 
   return (
     <group>
-      <Tree position={[-4.35, 0.05, -1.9]} scale={0.96} />
-      <Tree position={[4.35, 0.05, 1.9]} scale={1.08} />
-      <Tree position={[-3.65, 0.05, 2.15]} scale={0.76} />
-      <Tree position={[3.55, 0.05, -2.18]} scale={0.8} />
-      {grassPositions.map((position, index) => <GrassTuft key={index} position={position} scale={index % 2 ? 0.8 : 1} />)}
-      <Rock position={[-1.7, 0.08, -0.95]} />
-      <Rock position={[1.8, 0.08, 0.98]} scale={0.8} />
-      <Rock position={[0.4, 0.07, -1.02]} scale={0.68} />
-      <mesh position={[-4.85, 0.4, 0.9]} rotation={[0, 0.15, 0]} castShadow>
+      <Tree position={[-4.75, 0.05, -2.25]} scale={0.9} />
+      <Tree position={[4.75, 0.05, 2.28]} scale={0.98} />
+      <Tree position={[-4.8, 0.05, 2.25]} scale={0.7} />
+      <Tree position={[4.85, 0.05, -2.28]} scale={0.72} />
+      {grassPositions.map((position, index) => <GrassTuft key={index} position={position} scale={index % 2 ? 0.78 : 0.96} />)}
+      <Rock position={[-2.05, 0.08, -1.05]} />
+      <Rock position={[2.05, 0.08, 1.05]} scale={0.8} />
+      <Rock position={[0.55, 0.07, -1.05]} scale={0.65} />
+      <mesh position={[-4.92, 0.42, 1.05]} rotation={[0, 0.15, 0]} castShadow>
         <boxGeometry args={[0.76, 0.46, 0.08]} />
         <meshStandardMaterial color="#fef3c7" roughness={0.65} />
       </mesh>
-      <mesh position={[-4.85, 0.16, 0.9]} castShadow>
-        <cylinderGeometry args={[0.035, 0.035, 0.48, 8]} />
+      <mesh position={[-4.92, 0.17, 1.05]} castShadow>
+        <cylinderGeometry args={[0.035, 0.035, 0.5, 8]} />
         <meshStandardMaterial color="#854d0e" />
       </mesh>
     </group>
@@ -293,55 +321,55 @@ function EnvironmentDetails() {
 function LabBridgeScene({ buildLevel }: { buildLevel: number }) {
   const riverRef = useRef<THREE.Mesh>(null);
   const waterMaterial = useMemo(
-    () => new THREE.MeshPhysicalMaterial({ color: '#1fb6d7', transparent: true, opacity: 0.78, roughness: 0.18, metalness: 0.02, transmission: 0.1 }),
+    () => new THREE.MeshPhysicalMaterial({ color: '#1fb6d7', transparent: true, opacity: 0.78, roughness: 0.16, metalness: 0.02 }),
     [],
   );
 
   useFrame(({ clock }) => {
     if (!riverRef.current) return;
-    riverRef.current.position.z = Math.sin(clock.elapsedTime * 1.2) * 0.035;
+    riverRef.current.position.z = Math.sin(clock.elapsedTime * 1.1) * 0.03;
   });
 
   return (
     <>
-      <color attach="background" args={["#bde8ff"]} />
-      <fog attach="fog" args={["#dbeafe", 9, 18]} />
-      <ambientLight intensity={0.58} />
-      <directionalLight position={[4.4, 7.2, 3.6]} intensity={2.2} castShadow shadow-mapSize-width={2048} shadow-mapSize-height={2048} />
+      <color attach="background" args={["#c8efff"]} />
+      <fog attach="fog" args={["#dbeafe", 9, 17]} />
+      <ambientLight intensity={0.55} />
+      <directionalLight position={[4.5, 7, 3.5]} intensity={2.1} castShadow shadow-mapSize-width={2048} shadow-mapSize-height={2048} />
       <hemisphereLight args={["#e0f2fe", "#14532d", 1.05]} />
 
-      <group rotation={[0, -0.1, 0]}>
+      <group rotation={[0, -0.06, 0]}>
         <mesh receiveShadow position={[0, -0.045, 0]}>
-          <boxGeometry args={[10.3, 0.09, 5.8]} />
+          <boxGeometry args={[10.6, 0.09, 5.9]} />
           <meshStandardMaterial color="#5ccf68" roughness={0.9} />
         </mesh>
 
         <mesh position={[0, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-          <planeGeometry args={[9.4, 2.08, 32, 6]} />
+          <planeGeometry args={[9.3, 1.95, 32, 6]} />
           <meshStandardMaterial color="#0e7490" roughness={0.52} />
         </mesh>
         <mesh ref={riverRef} position={[0, 0.052, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-          <planeGeometry args={[8.9, 1.78, 42, 8]} />
+          <planeGeometry args={[8.8, 1.62, 42, 8]} />
           <primitive object={waterMaterial} attach="material" />
         </mesh>
         <WaterRipples />
 
-        <mesh position={[-4.08, BANK_Y / 2, 0]} receiveShadow castShadow>
-          <boxGeometry args={[1.75, BANK_Y, 2.75]} />
+        <mesh position={[-4.3, BANK_Y / 2, 0]} receiveShadow castShadow>
+          <boxGeometry args={[1.95, BANK_Y, 2.8]} />
           <meshStandardMaterial color="#7ec850" roughness={0.88} />
         </mesh>
-        <mesh position={[4.08, BANK_Y / 2, 0]} receiveShadow castShadow>
-          <boxGeometry args={[1.75, BANK_Y, 2.75]} />
+        <mesh position={[4.3, BANK_Y / 2, 0]} receiveShadow castShadow>
+          <boxGeometry args={[1.95, BANK_Y, 2.8]} />
           <meshStandardMaterial color="#7ec850" roughness={0.88} />
         </mesh>
 
-        <mesh position={[-3.45, BANK_Y + 0.06, 0]} castShadow receiveShadow>
-          <boxGeometry args={[0.34, 0.12, 1.48]} />
-          <meshStandardMaterial color="#a3a3a3" roughness={0.76} />
+        <mesh position={[-3.47, DECK_Y - 0.09, 0]} castShadow receiveShadow>
+          <boxGeometry args={[0.46, 0.18, 1.48]} />
+          <meshStandardMaterial color="#9ca3af" roughness={0.76} />
         </mesh>
-        <mesh position={[3.45, BANK_Y + 0.06, 0]} castShadow receiveShadow>
-          <boxGeometry args={[0.34, 0.12, 1.48]} />
-          <meshStandardMaterial color="#a3a3a3" roughness={0.76} />
+        <mesh position={[3.47, DECK_Y - 0.09, 0]} castShadow receiveShadow>
+          <boxGeometry args={[0.46, 0.18, 1.48]} />
+          <meshStandardMaterial color="#9ca3af" roughness={0.76} />
         </mesh>
 
         <SurveyMarkers buildLevel={buildLevel} />
@@ -351,14 +379,10 @@ function LabBridgeScene({ buildLevel }: { buildLevel: number }) {
         {buildLevel >= 5 && <EntryStairs side="left" />}
         {buildLevel >= 5 && <EntryStairs side="right" />}
         <TestChild active={buildLevel >= 6} />
-
-        {buildLevel >= 1 && <FloatingCoin position={[-3.25, 1.42, -1.15]} />}
-        {buildLevel >= 3 && <FloatingCoin position={[0, 1.55, -1.25]} delay={1.1} />}
-        {buildLevel >= 5 && <FloatingCoin position={[3.25, 1.42, -1.15]} delay={2.2} />}
         <EnvironmentDetails />
       </group>
 
-      <OrbitControls enablePan={false} minDistance={6.4} maxDistance={10.4} maxPolarAngle={Math.PI / 2.18} target={[0, 0.45, 0]} />
+      <OrbitControls enablePan={false} minDistance={5.8} maxDistance={9.2} maxPolarAngle={Math.PI / 2.22} target={[0, 0.5, 0]} />
     </>
   );
 }
@@ -392,7 +416,7 @@ export default function AnimatedRealityLabPage() {
           <span className="eyebrow">Separate experiment branch</span>
           <h1>Animated Reality Lab</h1>
           <p>
-            A safer, more realistic test space for the Mezzo Maths bridge: aligned stairs, stronger 3D materials,
+            A safer, more realistic test space for the Mezzo Maths bridge: aligned stairs, cleaner bridge construction,
             river movement, banks, rocks, trees, rewards, and a Spline-ready homepage slot.
           </p>
         </div>
@@ -440,7 +464,7 @@ export default function AnimatedRealityLabPage() {
 
         <div className="lab-viewport">
           <div className="lab-viewport-label">Live 3D build preview</div>
-          <Canvas shadows dpr={[1, 1.65]} camera={{ position: [6.6, 4.7, 6.2], fov: 42 }}>
+          <Canvas shadows dpr={[1, 1.65]} camera={{ position: [5.7, 3.9, 5.3], fov: 38 }}>
             <Suspense fallback={null}>
               <LabBridgeScene buildLevel={buildLevel} />
             </Suspense>
