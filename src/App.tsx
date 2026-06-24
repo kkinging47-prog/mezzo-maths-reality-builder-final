@@ -16,7 +16,7 @@ import SponsorDashboard from './pages/SponsorDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import DemoPage from './pages/DemoPage';
 import VRPreviewPage from './pages/VRPreviewPage';
-import AnimatedRealityLabPage from './pages/AnimatedRealityLabPage';
+import AnimatedRealityLabPage from './pages/AnimatedRealityLabPageV5';
 import NotFoundPage from './pages/NotFoundPage';
 import StudentSidebar from './components/StudentSidebar';
 
