@@ -7,6 +7,7 @@ import './motion.css';
 import './student-shell.css';
 import './landing.css';
 import './figma-mission.css';
+import './babylon-footbridge-lab.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
