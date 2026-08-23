@@ -1,0 +1,248 @@
+.babylon-lab-page {
+  min-height: 100vh;
+  padding: 5.5rem clamp(0.75rem, 2vw, 2rem) 1.25rem;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.babylon-lab-hero {
+  padding: clamp(1rem, 2vw, 1.5rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) auto;
+  gap: 1rem;
+  align-items: center;
+}
+
+.babylon-lab-hero h1 {
+  margin: 0.3rem 0 0.55rem;
+  font-size: clamp(2rem, 4vw, 3.7rem);
+  line-height: 0.95;
+  letter-spacing: -0.06em;
+}
+
+.babylon-lab-hero p,
+.babylon-control-panel p,
+.babylon-note-card span,
+.babylon-step small {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.babylon-lab-badge,
+.babylon-scene-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0.6rem 0.9rem;
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #a7f3d0;
+  font-size: 0.82rem;
+  font-weight: 950;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.babylon-lab-board {
+  min-height: min(75vh, 790px);
+  padding: 0.75rem;
+  display: grid;
+  grid-template-columns: minmax(245px, 0.72fr) minmax(480px, 1.55fr) minmax(210px, 0.48fr);
+  gap: 0.75rem;
+  overflow: hidden;
+}
+
+.babylon-control-panel,
+.babylon-step-panel {
+  border: 1px solid var(--border);
+  background: rgba(7, 20, 52, 0.74);
+  border-radius: 1.1rem;
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 0;
+}
+
+.babylon-control-panel h2,
+.babylon-step-panel h3 {
+  margin: 0;
+  letter-spacing: -0.04em;
+}
+
+.babylon-control-panel h2 {
+  font-size: clamp(1.65rem, 3vw, 2.35rem);
+  line-height: 1;
+}
+
+.babylon-score-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+
+.babylon-score-row span {
+  display: inline-flex;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0.45rem 0.35rem;
+  background: rgba(255,255,255,0.11);
+  border: 1px solid var(--border);
+  font-weight: 900;
+  font-size: 0.84rem;
+}
+
+.babylon-progress-track {
+  height: 0.65rem;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.12);
+  overflow: hidden;
+}
+
+.babylon-progress-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--gold), var(--green), var(--blue));
+  transition: width 0.32s ease;
+}
+
+.babylon-button-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+}
+
+.babylon-button-row .btn {
+  padding: 0.72rem 0.85rem;
+}
+
+.babylon-note-card {
+  margin-top: auto;
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.75rem;
+  border-radius: 1rem;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.28);
+}
+
+.babylon-note-card strong {
+  color: #fde68a;
+}
+
+.babylon-canvas-wrap {
+  min-height: 560px;
+  border-radius: 1.15rem;
+  border: 1px solid rgba(255,255,255,0.18);
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(180deg, rgba(125, 211, 252, 0.25), rgba(15, 23, 42, 0.94));
+}
+
+.babylon-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  outline: none;
+  touch-action: none;
+}
+
+.babylon-scene-label {
+  position: absolute;
+  z-index: 2;
+  top: 0.8rem;
+  left: 0.8rem;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.22);
+}
+
+.babylon-step-panel {
+  overflow: auto;
+}
+
+.babylon-step {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: 0.5rem;
+  padding: 0.55rem;
+  border-radius: 0.85rem;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid transparent;
+}
+
+.babylon-step span {
+  width: 1.72rem;
+  height: 1.72rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.12);
+  color: white;
+  font-weight: 950;
+  font-size: 0.82rem;
+}
+
+.babylon-step strong {
+  display: block;
+  margin-bottom: 0.15rem;
+}
+
+.babylon-step.current {
+  border-color: rgba(96, 165, 250, 0.55);
+  background: rgba(37, 99, 235, 0.18);
+}
+
+.babylon-step.done {
+  border-color: rgba(16, 185, 129, 0.45);
+  background: rgba(16, 185, 129, 0.15);
+}
+
+.babylon-step.done span {
+  background: var(--green);
+  color: #052e1f;
+}
+
+@media (max-width: 1140px) {
+  .babylon-lab-board {
+    grid-template-columns: minmax(250px, 0.72fr) minmax(430px, 1.25fr);
+    min-height: auto;
+  }
+
+  .babylon-step-panel {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .babylon-step-panel h3 {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 780px) {
+  .babylon-lab-page {
+    padding-top: 5rem;
+  }
+
+  .babylon-lab-hero,
+  .babylon-lab-board,
+  .babylon-step-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .babylon-lab-badge {
+    justify-content: flex-start;
+    white-space: normal;
+  }
+
+  .babylon-canvas-wrap {
+    min-height: 420px;
+  }
+
+  .babylon-button-row {
+    grid-template-columns: 1fr;
+  }
+}
