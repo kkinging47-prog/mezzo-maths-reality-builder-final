@@ -5,18 +5,18 @@ import {
   Color3,
   Color4,
   DirectionalLight,
+  DynamicTexture,
   Engine,
   HemisphericLight,
   Mesh,
   MeshBuilder,
-  Node,
   Scene,
   ShadowGenerator,
   StandardMaterial,
+  Texture,
   TransformNode,
   Vector3,
 } from '@babylonjs/core';
-import '@babylonjs/loaders';
 
 const steps = [
   { title: 'Survey', detail: 'Measure the river and mark safe crossing points.' },
@@ -24,40 +24,40 @@ const steps = [
   { title: 'Beams', detail: 'Connect the pillars with long beams.' },
   { title: 'Planks', detail: 'Lay the bridge deck one plank at a time.' },
   { title: 'Rails & stairs', detail: 'Add side rails and aligned entry stairs.' },
-  { title: 'Human test', detail: 'Watch the learner climb, cross, and descend.' },
+  { title: 'Sprite test', detail: 'Watch the learner climb, cross, descend, and celebrate.' },
 ];
 
 type MeshGroupName = 'survey' | 'supports' | 'beams' | 'planks' | 'rails' | 'stairs' | 'human';
 type SceneNode = AbstractMesh | TransformNode;
+type SpriteState = 'idle' | 'walk' | 'climb' | 'descend' | 'celebrate';
 
-type BirdRig = {
+type SpriteRig = {
   root: TransformNode;
-  leftWing: Mesh;
-  rightWing: Mesh;
-  speed: number;
-  baseZ: number;
-  offset: number;
+  plane: Mesh;
+  shadow: Mesh;
+  texture: DynamicTexture;
+  currentFrameKey: string;
 };
 
 type BabylonLabParts = {
   engine: Engine;
   scene: Scene;
   groups: Record<MeshGroupName, SceneNode[]>;
-  humanRoot: TransformNode;
-  leftUpperLeg: Mesh;
-  rightUpperLeg: Mesh;
-  leftLowerLeg: Mesh;
-  rightLowerLeg: Mesh;
-  leftArm: Mesh;
-  rightArm: Mesh;
-  head: Mesh;
+  sprite: SpriteRig;
+  currentLevel: number;
+  walkTime: number;
 };
 
-function createMaterial(scene: Scene, name: string, color: string, rough = 0.85) {
+function createMaterial(scene: Scene, name: string, color: string) {
   const material = new StandardMaterial(name, scene);
   material.diffuseColor = Color3.FromHexString(color);
-  material.specularColor = new Color3(0.08, 0.08, 0.08);
-  material.roughness = rough;
+  material.specularColor = new Color3(0.06, 0.06, 0.06);
+  return material;
+}
+
+function createAlphaMaterial(scene: Scene, name: string, color: string, alpha: number) {
+  const material = createMaterial(scene, name, color);
+  material.alpha = alpha;
   return material;
 }
 
@@ -91,7 +91,7 @@ function addCylinder(
   material: StandardMaterial,
   shadowGenerator?: ShadowGenerator,
 ) {
-  const cylinder = MeshBuilder.CreateCylinder(name, { height, diameterTop, diameterBottom, tessellation: 22 }, scene);
+  const cylinder = MeshBuilder.CreateCylinder(name, { height, diameterTop, diameterBottom, tessellation: 20 }, scene);
   cylinder.position = position;
   cylinder.material = material;
   cylinder.receiveShadows = true;
@@ -99,145 +99,258 @@ function addCylinder(
   return cylinder;
 }
 
-function createCloud(scene: Scene, x: number, y: number, z: number, scale: number, material: StandardMaterial) {
-  const root = new TransformNode(`cloud-${x}-${z}`, scene);
-  const blobs = [
-    [-0.4, 0, 0, 0.68],
-    [0, 0.08, 0.03, 0.9],
-    [0.52, 0.03, -0.02, 0.72],
-    [0.92, -0.04, 0, 0.5],
-  ];
-
-  blobs.forEach(([bx, by, bz, diameter], index) => {
-    const cloudPart = MeshBuilder.CreateSphere(`cloud-blob-${index}`, { diameter: diameter * scale, segments: 16 }, scene);
-    cloudPart.position = new Vector3(x + bx * scale, y + by * scale, z + bz * scale);
-    cloudPart.scaling.y = 0.55;
-    cloudPart.material = material;
-    cloudPart.parent = root;
-  });
-
-  return root;
-}
-
-function createBird(scene: Scene, x: number, y: number, z: number, scale: number, material: StandardMaterial, shadows: ShadowGenerator, speed: number, offset: number): BirdRig {
-  const root = new TransformNode(`bird-${x}-${z}`, scene);
-  root.position = new Vector3(x, y, z);
-  root.rotation.y = Math.PI / 2;
-
-  const body = MeshBuilder.CreateSphere('bird-body', { diameter: 0.12 * scale, segments: 10 }, scene);
-  body.scaling = new Vector3(1.4, 0.75, 0.75);
-  body.material = material;
-  body.parent = root;
-  shadows.addShadowCaster(body);
-
-  const leftWing = addBox(scene, 'bird-left-wing', { width: 0.42 * scale, height: 0.025 * scale, depth: 0.08 * scale }, new Vector3(-0.22 * scale, 0.03 * scale, 0), material, shadows);
-  const rightWing = addBox(scene, 'bird-right-wing', { width: 0.42 * scale, height: 0.025 * scale, depth: 0.08 * scale }, new Vector3(0.22 * scale, 0.03 * scale, 0), material, shadows);
-  leftWing.parent = root;
-  rightWing.parent = root;
-
-  return { root, leftWing, rightWing, speed, baseZ: z, offset };
-}
-
-function createFruitTree(
-  scene: Scene,
-  x: number,
-  z: number,
-  scale: number,
-  trunk: StandardMaterial,
-  leafMaterials: StandardMaterial[],
-  fruit: StandardMaterial,
-  shadows: ShadowGenerator,
-) {
-  const treeRoot = new TransformNode(`fruit-tree-${x}-${z}`, scene);
+function createTree(scene: Scene, x: number, z: number, scale: number, trunk: StandardMaterial, leaves: StandardMaterial, shadows: ShadowGenerator) {
+  const treeRoot = new TransformNode(`tree-${x}-${z}`, scene);
   treeRoot.position = new Vector3(x, 0, z);
 
-  const trunkMesh = addCylinder(scene, 'fruit-tree-trunk', 0.92 * scale, 0.13 * scale, 0.24 * scale, new Vector3(0, 0.46 * scale, 0), trunk, shadows);
+  const trunkMesh = addCylinder(scene, 'tree-trunk', 0.86 * scale, 0.13 * scale, 0.22 * scale, new Vector3(0, 0.43 * scale, 0), trunk, shadows);
   trunkMesh.parent = treeRoot;
 
   const leafPositions: Array<[number, number, number, number]> = [
-    [0, 1.12, 0, 0.82],
-    [-0.34, 0.98, 0.1, 0.62],
-    [0.36, 1.02, -0.05, 0.66],
-    [0.05, 1.42, 0.02, 0.58],
-    [-0.05, 0.82, -0.16, 0.52],
+    [0, 1.02, 0, 0.8],
+    [-0.28, 0.88, 0.12, 0.58],
+    [0.3, 0.92, -0.1, 0.62],
+    [0.05, 1.25, 0, 0.56],
   ];
 
   leafPositions.forEach(([lx, ly, lz, diameter], index) => {
-    const leaf = MeshBuilder.CreateSphere(`leaf-cluster-${index}`, { diameter: diameter * scale, segments: 18 }, scene);
+    const leaf = MeshBuilder.CreateSphere(`leaf-${index}`, { diameter: diameter * scale, segments: 16 }, scene);
     leaf.position = new Vector3(lx * scale, ly * scale, lz * scale);
-    leaf.scaling = new Vector3(1.1, 0.78, 1.05);
-    leaf.material = leafMaterials[index % leafMaterials.length];
+    leaf.scaling = new Vector3(1.08, 0.76, 1.04);
+    leaf.material = leaves;
     leaf.parent = treeRoot;
     shadows.addShadowCaster(leaf);
-  });
-
-  const fruitPositions: Array<[number, number, number]> = [
-    [-0.27, 1.08, 0.36],
-    [0.22, 1.16, -0.38],
-    [0.42, 0.92, 0.18],
-    [-0.08, 1.38, -0.28],
-    [-0.45, 0.86, -0.08],
-  ];
-
-  fruitPositions.forEach(([fx, fy, fz], index) => {
-    const fruitMesh = MeshBuilder.CreateSphere(`tree-fruit-${index}`, { diameter: 0.13 * scale, segments: 12 }, scene);
-    fruitMesh.position = new Vector3(fx * scale, fy * scale, fz * scale);
-    fruitMesh.material = fruit;
-    fruitMesh.parent = treeRoot;
-    shadows.addShadowCaster(fruitMesh);
   });
 
   return treeRoot;
 }
 
 function footYForBridgePath(x: number) {
-  const ground = 0.1;
-  const deck = 1.16;
+  const ground = 0.28;
+  const deck = 1.19;
+
   if (x < -3.25) {
-    const t = Math.min(1, Math.max(0, (x + 4.75) / 1.5));
+    const t = Math.min(1, Math.max(0, (x + 4.65) / 1.4));
     return ground + (deck - ground) * t;
   }
+
   if (x > 3.25) {
-    const t = Math.min(1, Math.max(0, (x - 3.25) / 1.5));
+    const t = Math.min(1, Math.max(0, (x - 3.25) / 1.4));
     return deck + (ground - deck) * t;
   }
+
   return deck;
+}
+
+function spriteStateForX(x: number, t: number): SpriteState {
+  if (t < 0.04) return 'idle';
+  if (t > 0.94) return 'celebrate';
+  if (x < -3.25) return 'climb';
+  if (x > 3.25) return 'descend';
+  return 'walk';
+}
+
+function drawRoundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function drawSpriteFrame(sprite: SpriteRig, state: SpriteState, frame: number) {
+  const frameKey = `${state}-${frame}`;
+  if (sprite.currentFrameKey === frameKey) return;
+  sprite.currentFrameKey = frameKey;
+
+  const texture = sprite.texture;
+  const ctx = texture.getContext();
+  const width = texture.getSize().width;
+  const height = texture.getSize().height;
+
+  ctx.clearRect(0, 0, width, height);
+  ctx.save();
+  ctx.translate(width / 2, 10);
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  const step = Math.sin(frame * Math.PI * 0.5);
+  const opposite = Math.cos(frame * Math.PI * 0.5);
+  const isCelebrate = state === 'celebrate';
+  const isClimb = state === 'climb';
+  const isDescend = state === 'descend';
+  const tilt = isClimb ? -0.12 : isDescend ? 0.1 : 0;
+
+  ctx.rotate(tilt);
+
+  ctx.fillStyle = 'rgba(15,23,42,0.18)';
+  ctx.beginPath();
+  ctx.ellipse(0, 112, 34, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = '#111827';
+  ctx.lineWidth = 10;
+  ctx.beginPath();
+  ctx.moveTo(-12, 76);
+  ctx.lineTo(-18 + step * 7, 98);
+  ctx.lineTo(-15 + step * 14, 112);
+  ctx.moveTo(12, 76);
+  ctx.lineTo(18 - step * 7, 98);
+  ctx.lineTo(15 - step * 14, 112);
+  ctx.stroke();
+
+  ctx.strokeStyle = '#0f172a';
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.moveTo(-16 + step * 14, 114);
+  ctx.lineTo(-3 + step * 14, 114);
+  ctx.moveTo(10 - step * 14, 114);
+  ctx.lineTo(23 - step * 14, 114);
+  ctx.stroke();
+
+  ctx.fillStyle = '#2563eb';
+  drawRoundedRect(ctx, -20, 40, 40, 42, 12);
+
+  ctx.fillStyle = '#f97316';
+  drawRoundedRect(ctx, -17, 46, 34, 12, 6);
+
+  ctx.strokeStyle = '#d8a172';
+  ctx.lineWidth = 8;
+  ctx.beginPath();
+  if (isCelebrate) {
+    ctx.moveTo(-18, 48);
+    ctx.lineTo(-38, 20 - Math.abs(opposite) * 6);
+    ctx.moveTo(18, 48);
+    ctx.lineTo(38, 20 - Math.abs(opposite) * 6);
+  } else {
+    ctx.moveTo(-18, 52);
+    ctx.lineTo(-34 - opposite * 5, 72 + step * 6);
+    ctx.moveTo(18, 52);
+    ctx.lineTo(34 + opposite * 5, 72 - step * 6);
+  }
+  ctx.stroke();
+
+  ctx.fillStyle = '#d8a172';
+  ctx.beginPath();
+  ctx.arc(0, 27, 17, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#1f2937';
+  ctx.beginPath();
+  ctx.ellipse(0, 18, 18, 10, 0, Math.PI, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#111827';
+  ctx.beginPath();
+  ctx.arc(-6, 28, 2.2, 0, Math.PI * 2);
+  ctx.arc(7, 28, 2.2, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = '#7c2d12';
+  ctx.lineWidth = 2.2;
+  ctx.beginPath();
+  if (state === 'celebrate') {
+    ctx.arc(1, 35, 7, 0.1, Math.PI - 0.1);
+  } else {
+    ctx.arc(1, 36, 5, 0.2, Math.PI - 0.2);
+  }
+  ctx.stroke();
+
+  if (state === 'climb') {
+    ctx.fillStyle = '#facc15';
+    ctx.font = 'bold 14px sans-serif';
+    ctx.fillText('UP', 22, 22);
+  }
+
+  if (state === 'descend') {
+    ctx.fillStyle = '#22c55e';
+    ctx.font = 'bold 14px sans-serif';
+    ctx.fillText('DOWN', -55, 22);
+  }
+
+  if (state === 'celebrate') {
+    ctx.fillStyle = '#facc15';
+    for (let index = 0; index < 6; index += 1) {
+      const angle = (index / 6) * Math.PI * 2 + frame * 0.35;
+      ctx.beginPath();
+      ctx.arc(Math.cos(angle) * 44, 34 + Math.sin(angle) * 22, 3.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  ctx.restore();
+  texture.update();
+}
+
+function createSpriteLearner(scene: Scene): SpriteRig {
+  const root = new TransformNode('sprite-learner-root', scene);
+  const plane = MeshBuilder.CreatePlane('sprite-learner-plane', { width: 0.86, height: 1.38 }, scene);
+  plane.position = new Vector3(0, 0.72, 0);
+  plane.billboardMode = Mesh.BILLBOARDMODE_Y;
+  plane.parent = root;
+
+  const texture = new DynamicTexture('generated-sprite-learner-texture', { width: 160, height: 140 }, scene, false, Texture.NEAREST_SAMPLINGMODE);
+  texture.hasAlpha = true;
+
+  const material = new StandardMaterial('sprite-learner-material', scene);
+  material.diffuseTexture = texture;
+  material.useAlphaFromDiffuseTexture = true;
+  material.emissiveColor = new Color3(1, 1, 1);
+  material.backFaceCulling = false;
+  plane.material = material;
+
+  const shadowMaterial = createAlphaMaterial(scene, 'sprite-shadow-material', '#020617', 0.22);
+  const shadow = MeshBuilder.CreateDisc('sprite-ground-shadow', { radius: 0.32, tessellation: 28 }, scene);
+  shadow.rotation.x = Math.PI / 2;
+  shadow.position = new Vector3(0, 0.02, 0);
+  shadow.scaling.z = 0.45;
+  shadow.material = shadowMaterial;
+  shadow.parent = root;
+
+  const sprite = { root, plane, shadow, texture, currentFrameKey: '' };
+  drawSpriteFrame(sprite, 'idle', 0);
+  return sprite;
 }
 
 function createBabylonScene(canvas: HTMLCanvasElement): BabylonLabParts {
   const engine = new Engine(canvas, true, { antialias: true, preserveDrawingBuffer: true, stencil: true });
   const scene = new Scene(engine);
-  scene.clearColor = new Color4(0.7, 0.88, 0.98, 1);
-  scene.ambientColor = new Color3(0.52, 0.62, 0.72);
+  scene.clearColor = new Color4(0.72, 0.9, 0.98, 1);
+  scene.ambientColor = new Color3(0.55, 0.62, 0.7);
   scene.fogMode = Scene.FOGMODE_EXP2;
-  scene.fogDensity = 0.014;
+  scene.fogDensity = 0.012;
   scene.fogColor = new Color3(0.76, 0.9, 0.98);
 
-  const camera = new ArcRotateCamera('camera', -Math.PI / 2.2, Math.PI / 3.05, 9.5, new Vector3(0, 1.05, 0), scene);
+  const camera = new ArcRotateCamera('camera', -Math.PI / 2.14, Math.PI / 3.05, 9.15, new Vector3(0, 1.05, 0), scene);
   camera.attachControl(canvas, true);
-  camera.lowerRadiusLimit = 7.2;
+  camera.lowerRadiusLimit = 7.1;
   camera.upperRadiusLimit = 12.5;
-  camera.lowerBetaLimit = Math.PI / 4.7;
+  camera.lowerBetaLimit = Math.PI / 4.8;
   camera.upperBetaLimit = Math.PI / 2.18;
-  camera.wheelPrecision = 42;
+  camera.wheelPrecision = 44;
 
   const hemi = new HemisphericLight('soft-sky', new Vector3(0, 1, 0), scene);
-  hemi.intensity = 0.76;
-  hemi.groundColor = new Color3(0.24, 0.45, 0.28);
+  hemi.intensity = 0.8;
+  hemi.groundColor = new Color3(0.23, 0.42, 0.24);
 
   const sun = new DirectionalLight('sun', new Vector3(-0.45, -0.86, 0.28), scene);
-  sun.position = new Vector3(5, 9, -4);
-  sun.intensity = 2.15;
-  const shadows = new ShadowGenerator(2048, sun);
+  sun.position = new Vector3(5.4, 9, -4.2);
+  sun.intensity = 2.05;
+  const shadows = new ShadowGenerator(1536, sun);
   shadows.useBlurExponentialShadowMap = true;
-  shadows.blurKernel = 20;
+  shadows.blurKernel = 18;
 
-  const grass = createMaterial(scene, 'realistic-grass', '#58a54a');
-  const darkGrass = createMaterial(scene, 'dark-grass', '#347a3b');
-  const water = createMaterial(scene, 'water-blue', '#149ed8', 0.32);
-  water.alpha = 0.78;
-  const foam = createMaterial(scene, 'water-foam', '#d8f7ff', 0.25);
-  foam.alpha = 0.58;
+  const grass = createMaterial(scene, 'main-grass', '#58a54a');
+  const bankGrass = createMaterial(scene, 'raised-bank-grass', '#347a3b');
+  const water = createAlphaMaterial(scene, 'river-water', '#149ed8', 0.78);
+  const foam = createAlphaMaterial(scene, 'river-foam', '#e0f8ff', 0.62);
   const riverbed = createMaterial(scene, 'riverbed', '#7a5a35');
   const stone = createMaterial(scene, 'stone', '#9ca3af');
   const concrete = createMaterial(scene, 'concrete', '#b9b7ad');
@@ -245,18 +358,8 @@ function createBabylonScene(canvas: HTMLCanvasElement): BabylonLabParts {
   const darkWood = createMaterial(scene, 'dark-wood', '#734415');
   const rail = createMaterial(scene, 'rail-wood', '#6d3f18');
   const marker = createMaterial(scene, 'survey-marker', '#facc15');
-  const cloudMaterial = createMaterial(scene, 'cloud-white', '#f8fafc', 0.7);
-  cloudMaterial.alpha = 0.82;
-  const birdMaterial = createMaterial(scene, 'bird-dark', '#111827');
-  const leafOne = createMaterial(scene, 'leaf-one', '#1f8f4d');
-  const leafTwo = createMaterial(scene, 'leaf-two', '#2faa5b');
-  const leafThree = createMaterial(scene, 'leaf-three', '#197a3e');
-  const fruit = createMaterial(scene, 'orange-fruit', '#f97316');
-  const skin = createMaterial(scene, 'skin', '#d8a172');
-  const shirt = createMaterial(scene, 'shirt', '#2563eb');
-  const trouser = createMaterial(scene, 'trouser', '#111827');
-  const shoe = createMaterial(scene, 'shoe', '#0f172a');
-  const hair = createMaterial(scene, 'hair', '#1f2937');
+  const leaves = createMaterial(scene, 'tree-leaves', '#1f8f4d');
+  const cloud = createAlphaMaterial(scene, 'soft-cloud', '#f8fafc', 0.82);
 
   const groups: Record<MeshGroupName, SceneNode[]> = {
     survey: [],
@@ -270,232 +373,132 @@ function createBabylonScene(canvas: HTMLCanvasElement): BabylonLabParts {
 
   const waterObjects: Mesh[] = [];
   const foamLines: Mesh[] = [];
-  const clouds: TransformNode[] = [];
-  const birds: BirdRig[] = [];
-  const trees: TransformNode[] = [];
 
-  const ground = addBox(scene, 'wide-ground', { width: 12.5, height: 0.12, depth: 8.5 }, new Vector3(0, -0.08, 0), grass, shadows);
+  const ground = addBox(scene, 'wide-ground', { width: 12.6, height: 0.12, depth: 8.5 }, new Vector3(0, -0.08, 0), grass, shadows);
   ground.receiveShadows = true;
 
-  addBox(scene, 'riverbed', { width: 3.25, height: 0.06, depth: 8.7 }, new Vector3(0, 0.005, 0), riverbed);
+  addBox(scene, 'riverbed', { width: 3.18, height: 0.06, depth: 8.7 }, new Vector3(0, 0.005, 0), riverbed);
   const waterMain = addBox(scene, 'moving-river', { width: 3.0, height: 0.04, depth: 8.55 }, new Vector3(0, 0.06, 0), water);
-  waterMain.receiveShadows = true;
   waterObjects.push(waterMain);
 
-  for (let z = -4.05; z <= 4.05; z += 0.48) {
-    const ripple = addBox(scene, 'animated-river-ripple', { width: 2.55, height: 0.018, depth: 0.035 }, new Vector3(0, 0.102, z), z % 0.96 === 0 ? foam : water, undefined);
+  for (let z = -4.05; z <= 4.05; z += 0.56) {
+    const ripple = addBox(scene, 'river-ripple', { width: 2.62, height: 0.018, depth: 0.035 }, new Vector3(0, 0.102, z), z > -0.1 && z < 0.1 ? foam : water);
     ripple.rotation.y = z * 0.2;
     ripple.alphaIndex = 1;
     foamLines.push(ripple);
   }
 
-  addBox(scene, 'left-raised-bank', { width: 3.7, height: 0.32, depth: 3.1 }, new Vector3(-4.15, 0.11, 0), darkGrass, shadows);
-  addBox(scene, 'right-raised-bank', { width: 3.7, height: 0.32, depth: 3.1 }, new Vector3(4.15, 0.11, 0), darkGrass, shadows);
-  addBox(scene, 'left-path', { width: 2.4, height: 0.045, depth: 0.9 }, new Vector3(-5.15, 0.29, 0), concrete);
-  addBox(scene, 'right-path', { width: 2.4, height: 0.045, depth: 0.9 }, new Vector3(5.15, 0.29, 0), concrete);
+  addBox(scene, 'left-raised-bank', { width: 3.72, height: 0.32, depth: 3.12 }, new Vector3(-4.15, 0.11, 0), bankGrass, shadows);
+  addBox(scene, 'right-raised-bank', { width: 3.72, height: 0.32, depth: 3.12 }, new Vector3(4.15, 0.11, 0), bankGrass, shadows);
+  addBox(scene, 'left-path', { width: 2.42, height: 0.05, depth: 0.9 }, new Vector3(-5.13, 0.29, 0), concrete);
+  addBox(scene, 'right-path', { width: 2.42, height: 0.05, depth: 0.9 }, new Vector3(5.13, 0.29, 0), concrete);
 
-  clouds.push(
-    createCloud(scene, -4.7, 4.25, -2.4, 0.92, cloudMaterial),
-    createCloud(scene, 0.6, 4.55, 2.7, 0.72, cloudMaterial),
-    createCloud(scene, 4.5, 3.95, -1.6, 0.78, cloudMaterial),
-  );
+  for (const [x, z] of [[-5.15, -2.6], [-5.2, 2.55], [5.2, -2.55], [5.15, 2.58]] as Array<[number, number]>) {
+    createTree(scene, x, z, x < 0 ? 0.92 : 1.02, darkWood, leaves, shadows);
+  }
 
-  birds.push(
-    createBird(scene, -5.2, 3.65, -2.9, 1, birdMaterial, shadows, 1.1, 0),
-    createBird(scene, -7.2, 3.25, 1.9, 0.82, birdMaterial, shadows, 0.85, 1.4),
-    createBird(scene, 4.8, 3.45, 3.1, 0.76, birdMaterial, shadows, 0.95, 2.5),
-  );
+  for (const [x, y, z, scale] of [[-4.2, 4.1, -2.2, 0.9], [0.9, 4.45, 2.5, 0.68], [4.6, 3.9, -1.5, 0.76]] as Array<[number, number, number, number]>) {
+    const root = new TransformNode(`cloud-${x}-${z}`, scene);
+    for (const offset of [-0.35, 0, 0.34]) {
+      const cloudBlob = MeshBuilder.CreateSphere('cloud-blob', { diameter: scale * (offset === 0 ? 0.78 : 0.58), segments: 12 }, scene);
+      cloudBlob.position = new Vector3(x + offset * scale, y + Math.abs(offset) * 0.06, z);
+      cloudBlob.scaling.y = 0.5;
+      cloudBlob.material = cloud;
+      cloudBlob.parent = root;
+    }
+  }
 
-  for (const x of [-5.7, -5.15, -4.55, 4.55, 5.15, 5.7]) {
-    const surveyPole = addCylinder(scene, 'survey-pole', 0.9, 0.035, 0.035, new Vector3(x, 0.72, x < 0 ? -0.82 : 0.82), marker, shadows);
-    const flag = addBox(scene, 'survey-flag', { width: 0.28, height: 0.16, depth: 0.025 }, new Vector3(x + 0.14, 1.12, x < 0 ? -0.82 : 0.82), marker, shadows);
-    groups.survey.push(surveyPole, flag);
+  for (const x of [-5.6, -4.95, 4.95, 5.6]) {
+    const pole = addCylinder(scene, 'survey-pole', 0.88, 0.035, 0.035, new Vector3(x, 0.73, x < 0 ? -0.72 : 0.72), marker, shadows);
+    const flag = addBox(scene, 'survey-flag', { width: 0.28, height: 0.16, depth: 0.025 }, new Vector3(x + 0.13, 1.1, x < 0 ? -0.72 : 0.72), marker, shadows);
+    groups.survey.push(pole, flag);
   }
 
   for (const x of [-2.35, -1.15, 0, 1.15, 2.35]) {
     for (const z of [-0.58, 0.58]) {
-      const pillar = addCylinder(scene, 'support-pillar', 1.16, 0.2, 0.26, new Vector3(x, 0.58, z), stone, shadows);
-      groups.supports.push(pillar);
+      groups.supports.push(addCylinder(scene, 'support-pillar', 1.16, 0.2, 0.26, new Vector3(x, 0.58, z), stone, shadows));
     }
   }
 
   for (const z of [-0.64, 0.64]) {
-    const beam = addBox(scene, 'long-support-beam', { width: 6.7, height: 0.18, depth: 0.18 }, new Vector3(0, 1.05, z), darkWood, shadows);
-    groups.beams.push(beam);
+    groups.beams.push(addBox(scene, 'main-beam', { width: 6.74, height: 0.18, depth: 0.18 }, new Vector3(0, 1.05, z), darkWood, shadows));
   }
 
   for (let index = 0; index < 10; index += 1) {
     const x = -3.05 + index * 0.68;
-    const plank = addBox(scene, 'deck-plank', { width: 0.58, height: 0.16, depth: 1.48 }, new Vector3(x, 1.18, 0), index % 2 ? darkWood : wood, shadows);
-    plank.rotation.z = 0.015 * (index % 2 ? 1 : -1);
+    const plank = addBox(scene, 'deck-plank', { width: 0.58, height: 0.16, depth: 1.48 }, new Vector3(x, 1.19, 0), index % 2 ? darkWood : wood, shadows);
+    plank.rotation.z = 0.012 * (index % 2 ? 1 : -1);
     groups.planks.push(plank);
   }
 
   for (const z of [-0.88, 0.88]) {
-    const topRail = addBox(scene, 'top-rail', { width: 6.5, height: 0.12, depth: 0.12 }, new Vector3(0, 1.78, z), rail, shadows);
-    const lowerRail = addBox(scene, 'lower-rail', { width: 6.2, height: 0.09, depth: 0.09 }, new Vector3(0, 1.48, z), rail, shadows);
-    groups.rails.push(topRail, lowerRail);
+    groups.rails.push(addBox(scene, 'top-rail', { width: 6.5, height: 0.12, depth: 0.12 }, new Vector3(0, 1.78, z), rail, shadows));
+    groups.rails.push(addBox(scene, 'lower-rail', { width: 6.2, height: 0.09, depth: 0.09 }, new Vector3(0, 1.48, z), rail, shadows));
     for (let index = 0; index < 7; index += 1) {
-      const x = -3 + index * 1.0;
-      const post = addBox(scene, 'rail-post', { width: 0.1, height: 0.72, depth: 0.1 }, new Vector3(x, 1.42, z), rail, shadows);
-      groups.rails.push(post);
+      groups.rails.push(addBox(scene, 'rail-post', { width: 0.1, height: 0.72, depth: 0.1 }, new Vector3(-3 + index, 1.42, z), rail, shadows));
     }
   }
 
-  const stepTops = [0.34, 0.54, 0.74, 0.94, 1.14];
+  const stepTops = [0.35, 0.55, 0.75, 0.95, 1.15];
   stepTops.forEach((top, index) => {
-    const leftX = -4.62 + index * 0.34;
-    const rightX = 4.62 - index * 0.34;
-    const leftStep = addBox(scene, 'left-real-step', { width: 0.34, height: top, depth: 1.38 }, new Vector3(leftX, top / 2, 0), concrete, shadows);
-    const rightStep = addBox(scene, 'right-real-step', { width: 0.34, height: top, depth: 1.38 }, new Vector3(rightX, top / 2, 0), concrete, shadows);
-    groups.stairs.push(leftStep, rightStep);
+    groups.stairs.push(addBox(scene, 'left-step', { width: 0.34, height: top, depth: 1.38 }, new Vector3(-4.62 + index * 0.34, top / 2, 0), concrete, shadows));
+    groups.stairs.push(addBox(scene, 'right-step', { width: 0.34, height: top, depth: 1.38 }, new Vector3(4.62 - index * 0.34, top / 2, 0), concrete, shadows));
   });
-  const leftLanding = addBox(scene, 'left-landing', { width: 0.55, height: 0.18, depth: 1.5 }, new Vector3(-3.03, 1.08, 0), concrete, shadows);
-  const rightLanding = addBox(scene, 'right-landing', { width: 0.55, height: 0.18, depth: 1.5 }, new Vector3(3.03, 1.08, 0), concrete, shadows);
-  groups.stairs.push(leftLanding, rightLanding);
+  groups.stairs.push(addBox(scene, 'left-landing', { width: 0.55, height: 0.18, depth: 1.5 }, new Vector3(-3.03, 1.09, 0), concrete, shadows));
+  groups.stairs.push(addBox(scene, 'right-landing', { width: 0.55, height: 0.18, depth: 1.5 }, new Vector3(3.03, 1.09, 0), concrete, shadows));
 
-  const rockPositions: Array<[number, number, number, number]> = [
-    [-1.9, -2.8, 0.32, 0.2],
-    [1.85, -2.4, 0.28, 0.22],
-    [-1.75, 2.6, 0.24, 0.18],
-    [1.9, 2.9, 0.3, 0.2],
-    [-0.55, 3.25, 0.18, 0.15],
-    [0.62, -3.22, 0.2, 0.15],
-  ];
-  rockPositions.forEach(([x, z, width, height], i) => {
-    const rock = MeshBuilder.CreateSphere(`river-rock-${i}`, { diameter: 1, segments: 12 }, scene);
-    rock.position = new Vector3(x, 0.14, z);
-    rock.scaling = new Vector3(width, height, width * 0.72);
-    rock.material = stone;
-    shadows.addShadowCaster(rock);
-  });
+  const sprite = createSpriteLearner(scene);
+  sprite.root.position = new Vector3(-4.85, footYForBridgePath(-4.85), 0);
+  groups.human.push(sprite.root, sprite.plane, sprite.shadow);
 
-  trees.push(
-    createFruitTree(scene, -5.2, -2.6, 0.95, darkWood, [leafOne, leafTwo, leafThree], fruit, shadows),
-    createFruitTree(scene, 5.15, 2.55, 1.05, darkWood, [leafTwo, leafThree, leafOne], fruit, shadows),
-    createFruitTree(scene, -5.1, 2.6, 0.72, darkWood, [leafThree, leafOne, leafTwo], fruit, shadows),
-    createFruitTree(scene, 5.35, -2.45, 0.82, darkWood, [leafOne, leafThree, leafTwo], fruit, shadows),
-  );
+  const optionalGroups: MeshGroupName[] = ['survey', 'supports', 'beams', 'planks', 'rails', 'stairs', 'human'];
+  optionalGroups.forEach((group) => setGroupEnabled(groups[group], false));
 
-  const humanRoot = new TransformNode('human-root', scene);
-  humanRoot.position = new Vector3(-4.8, 0.18, 0);
-  humanRoot.rotation.y = Math.PI / 2;
+  const parts: BabylonLabParts = { engine, scene, groups, sprite, currentLevel: 0, walkTime: 0 };
 
-  const body = MeshBuilder.CreateCapsule('human-body', { height: 0.68, radius: 0.18, tessellation: 18 }, scene);
-  body.position = new Vector3(0, 0.78, 0);
-  body.scaling = new Vector3(0.86, 1, 0.72);
-  body.material = shirt;
-  body.parent = humanRoot;
-  shadows.addShadowCaster(body);
-
-  const neck = addCylinder(scene, 'human-neck', 0.11, 0.08, 0.08, new Vector3(0, 1.13, 0), skin, shadows);
-  neck.parent = humanRoot;
-  const head = MeshBuilder.CreateSphere('human-head', { diameter: 0.29, segments: 20 }, scene);
-  head.position = new Vector3(0, 1.28, 0);
-  head.scaling = new Vector3(0.92, 1.05, 0.9);
-  head.material = skin;
-  shadows.addShadowCaster(head);
-  head.parent = humanRoot;
-  const hairCap = MeshBuilder.CreateSphere('human-hair', { diameter: 0.31, segments: 16 }, scene);
-  hairCap.position = new Vector3(0, 1.41, -0.01);
-  hairCap.scaling = new Vector3(1, 0.45, 0.95);
-  hairCap.material = hair;
-  shadows.addShadowCaster(hairCap);
-  hairCap.parent = humanRoot;
-  const nose = addBox(scene, 'human-nose', { width: 0.035, height: 0.05, depth: 0.07 }, new Vector3(0, 1.27, 0.15), skin, shadows);
-  nose.parent = humanRoot;
-
-  const leftUpperLeg = addCylinder(scene, 'left-upper-leg', 0.36, 0.075, 0.085, new Vector3(-0.09, 0.47, 0), trouser, shadows);
-  const rightUpperLeg = addCylinder(scene, 'right-upper-leg', 0.36, 0.075, 0.085, new Vector3(0.09, 0.47, 0), trouser, shadows);
-  const leftLowerLeg = addCylinder(scene, 'left-lower-leg', 0.36, 0.065, 0.075, new Vector3(-0.09, 0.19, 0), trouser, shadows);
-  const rightLowerLeg = addCylinder(scene, 'right-lower-leg', 0.36, 0.065, 0.075, new Vector3(0.09, 0.19, 0), trouser, shadows);
-  const leftShoe = addBox(scene, 'left-shoe', { width: 0.14, height: 0.07, depth: 0.25 }, new Vector3(-0.09, 0.04, 0.08), shoe, shadows);
-  const rightShoe = addBox(scene, 'right-shoe', { width: 0.14, height: 0.07, depth: 0.25 }, new Vector3(0.09, 0.04, 0.08), shoe, shadows);
-  [leftUpperLeg, rightUpperLeg, leftLowerLeg, rightLowerLeg, leftShoe, rightShoe].forEach((part) => {
-    part.parent = humanRoot;
-  });
-
-  const leftArm = addCylinder(scene, 'left-arm', 0.5, 0.055, 0.065, new Vector3(-0.27, 0.78, 0), skin, shadows);
-  const rightArm = addCylinder(scene, 'right-arm', 0.5, 0.055, 0.065, new Vector3(0.27, 0.78, 0), skin, shadows);
-  leftArm.parent = humanRoot;
-  rightArm.parent = humanRoot;
-  const backpack = addBox(scene, 'human-backpack', { width: 0.27, height: 0.36, depth: 0.12 }, new Vector3(0, 0.8, -0.18), createMaterial(scene, 'backpack', '#f59e0b'), shadows);
-  backpack.parent = humanRoot;
-  const shadow = addBox(scene, 'human-soft-shadow', { width: 0.54, height: 0.012, depth: 0.32 }, new Vector3(0, 0.015, 0), createMaterial(scene, 'human-shadow', '#000000'));
-  shadow.material!.alpha = 0.22;
-  shadow.parent = humanRoot;
-
-  groups.human.push(humanRoot, body, neck, head, hairCap, nose, leftUpperLeg, rightUpperLeg, leftLowerLeg, rightLowerLeg, leftShoe, rightShoe, leftArm, rightArm, backpack, shadow);
-  setGroupEnabled(groups.human, false);
-
-  const allOptionalGroups: MeshGroupName[] = ['survey', 'supports', 'beams', 'planks', 'rails', 'stairs', 'human'];
-  allOptionalGroups.forEach((group) => setGroupEnabled(groups[group], false));
-
-  let walkClock = 0;
   scene.onBeforeRenderObservable.add(() => {
     const delta = engine.getDeltaTime() / 1000;
-    const time = performance.now() * 0.001;
+    const now = performance.now() * 0.001;
 
-    waterMain.position.z = Math.sin(time * 1.8) * 0.035;
-    waterMain.scaling.x = 1 + Math.sin(time * 2.4) * 0.012;
+    waterObjects.forEach((waterMesh) => {
+      waterMesh.position.z = Math.sin(now * 1.45) * 0.045;
+    });
+
     foamLines.forEach((line, index) => {
-      line.position.z += delta * (0.55 + (index % 4) * 0.09);
-      if (line.position.z > 4.25) line.position.z = -4.25;
-      line.position.y = 0.105 + Math.sin(time * 2.5 + index) * 0.012;
-      line.rotation.y = Math.sin(time + index) * 0.08;
+      line.position.z += delta * (0.25 + (index % 3) * 0.03);
+      if (line.position.z > 4.1) line.position.z = -4.1;
+      line.position.x = Math.sin(now * 2.1 + index) * 0.035;
     });
 
-    clouds.forEach((cloud, index) => {
-      cloud.position.x += delta * (0.08 + index * 0.025);
-      cloud.position.y += Math.sin(time * 0.8 + index) * 0.0008;
-      if (cloud.position.x > 3.6) cloud.position.x = -5.8;
-    });
+    if (parts.currentLevel < 6) return;
 
-    birds.forEach((bird, index) => {
-      bird.root.position.x += delta * bird.speed;
-      bird.root.position.y += Math.sin(time * 2.1 + bird.offset) * 0.006;
-      bird.root.position.z = bird.baseZ + Math.sin(time * 0.9 + index) * 0.35;
-      if (bird.root.position.x > 6.5) bird.root.position.x = -6.8;
-      const flap = Math.sin(time * 10 + bird.offset) * 0.75;
-      bird.leftWing.rotation.z = flap;
-      bird.rightWing.rotation.z = -flap;
-    });
-
-    trees.forEach((tree, index) => {
-      tree.rotation.z = Math.sin(time * 1.35 + index) * 0.025;
-      tree.rotation.x = Math.cos(time * 1.05 + index * 0.7) * 0.012;
-    });
-
-    if (!humanRoot.isEnabled()) return;
-    walkClock += delta;
-    const cycle = (walkClock % 12) / 12;
-    const eased = cycle < 0.5 ? 2 * cycle * cycle : 1 - Math.pow(-2 * cycle + 2, 2) / 2;
-    const x = -4.85 + eased * 9.7;
+    parts.walkTime += delta;
+    const totalDuration = 12.2;
+    const cycleTime = parts.walkTime % totalDuration;
+    const t = cycleTime / totalDuration;
+    const x = -4.85 + t * 9.7;
+    const state = spriteStateForX(x, t);
     const footY = footYForBridgePath(x);
-    const walkPhase = walkClock * 8.5;
-    const bob = Math.abs(Math.sin(walkPhase)) * 0.045;
-    const onStairs = x < -3.25 || x > 3.25;
-    humanRoot.position.x = x;
-    humanRoot.position.y = footY + bob;
-    humanRoot.position.z = 0;
-    humanRoot.rotation.y = Math.PI / 2;
-    humanRoot.rotation.z = onStairs ? (x < 0 ? -0.06 : 0.06) : 0;
-    leftUpperLeg.rotation.z = Math.sin(walkPhase) * 0.44;
-    rightUpperLeg.rotation.z = -Math.sin(walkPhase) * 0.44;
-    leftLowerLeg.rotation.z = -Math.abs(Math.sin(walkPhase)) * 0.32;
-    rightLowerLeg.rotation.z = -Math.abs(Math.sin(walkPhase + Math.PI)) * 0.32;
-    leftArm.rotation.z = -Math.sin(walkPhase) * 0.52;
-    rightArm.rotation.z = Math.sin(walkPhase) * 0.52;
-    head.position.y = 1.28 + Math.sin(walkPhase * 0.5) * 0.015;
+    const frame = Math.floor(parts.walkTime * (state === 'celebrate' ? 5 : 8)) % 4;
+    const bob = state === 'celebrate' ? Math.abs(Math.sin(parts.walkTime * 7)) * 0.035 : Math.abs(Math.sin(parts.walkTime * 8.5)) * 0.045;
+
+    sprite.root.position.x = x;
+    sprite.root.position.y = footY + bob;
+    sprite.root.position.z = 0;
+    sprite.shadow.scaling.x = state === 'climb' || state === 'descend' ? 0.84 : 1;
+    sprite.shadow.scaling.z = state === 'celebrate' ? 0.65 : 0.45;
+    drawSpriteFrame(sprite, state, frame);
   });
 
   engine.runRenderLoop(() => scene.render());
-
-  return { engine, scene, groups, humanRoot, leftUpperLeg, rightUpperLeg, leftLowerLeg, rightLowerLeg, leftArm, rightArm, head };
+  return parts;
 }
 
 function applyBuildLevel(parts: BabylonLabParts | null, level: number) {
   if (!parts) return;
+  const wasTesting = parts.currentLevel >= 6;
+  parts.currentLevel = level;
+
   setGroupEnabled(parts.groups.survey, level >= 1);
   setGroupEnabled(parts.groups.supports, level >= 2);
   setGroupEnabled(parts.groups.beams, level >= 3);
@@ -504,8 +507,10 @@ function applyBuildLevel(parts: BabylonLabParts | null, level: number) {
   setGroupEnabled(parts.groups.stairs, level >= 5);
   setGroupEnabled(parts.groups.human, level >= 6);
 
-  if (level >= 6) {
-    parts.humanRoot.position = new Vector3(-4.85, 0.18, 0);
+  if (level >= 6 && !wasTesting) {
+    parts.walkTime = 0;
+    parts.sprite.root.position = new Vector3(-4.85, footYForBridgePath(-4.85), 0);
+    drawSpriteFrame(parts.sprite, 'idle', 0);
   }
 }
 
@@ -545,13 +550,13 @@ export default function BabylonFootbridgeLabPage() {
       <section className="babylon-lab-hero card">
         <div>
           <span className="eyebrow">Separate Babylon.js experiment</span>
-          <h1>Babylon Footbridge Reality Lab</h1>
+          <h1>Babylon Footbridge Sprite Lab</h1>
           <p>
-            This is the upgraded animated-reality prototype: flowing river, moving clouds, birds, swaying fruit trees,
-            and an improved learner who climbs, crosses, and descends after the bridge is complete.
+            A child-friendly game sprite now climbs the left stairs, walks across the bridge, descends the right stairs,
+            and celebrates on the other bank after the bridge is complete.
           </p>
         </div>
-        <div className="babylon-lab-badge">BABYLON V2 · LIVING ENVIRONMENT</div>
+        <div className="babylon-lab-badge">BABYLON SPRITE V1 · CLIMB · CROSS · DESCEND</div>
       </section>
 
       <section className="babylon-lab-board card">
@@ -562,12 +567,12 @@ export default function BabylonFootbridgeLabPage() {
             <span>⚡ {buildLevel * 12} XP</span>
           </div>
 
-          <div className="babylon-progress-track">
+          <div className="babylon-progress-track" aria-label={`Build progress ${progress}%`}>
             <span style={{ width: `${progress}%` }} />
           </div>
 
-          <h2>{buildLevel >= steps.length ? 'Bridge ready for real-life test' : activeStep.title}</h2>
-          <p>{buildLevel >= steps.length ? 'Watch the learner climb up, cross safely, and descend to the other bank.' : activeStep.detail}</p>
+          <h2>{buildLevel >= steps.length ? 'Sprite crossing test running' : activeStep.title}</h2>
+          <p>{buildLevel >= steps.length ? 'The learner now follows the full path: climb, cross, descend, then celebrate.' : activeStep.detail}</p>
 
           <div className="babylon-button-row">
             <button className="btn btn-primary" onClick={buildNext} disabled={buildLevel >= steps.length}>
@@ -577,14 +582,14 @@ export default function BabylonFootbridgeLabPage() {
           </div>
 
           <div className="babylon-note-card">
-            <strong>Real asset slots ready</strong>
-            <span>Next upgrade: replace the prototype learner/tree shapes with licensed GLB models from Blender, Mixamo, Ready Player Me, or Sketchfab.</span>
+            <strong>Game sprite test</strong>
+            <span>The human is now a lightweight 2D game character placed inside the 3D bridge world.</span>
           </div>
         </aside>
 
         <div className="babylon-canvas-wrap">
-          <div className="babylon-scene-label">BABYLON V2 · FLOWING RIVER · CLOUDS · BIRDS · FRUIT TREES</div>
-          <canvas ref={canvasRef} className="babylon-canvas" aria-label="Babylon.js footbridge scene" />
+          <div className="babylon-scene-label">BABYLON SPRITE V1 · GAME CHARACTER WALK TEST</div>
+          <canvas ref={canvasRef} className="babylon-canvas" aria-label="Babylon.js sprite footbridge scene" />
         </div>
 
         <aside className="babylon-step-panel">
