@@ -3,6 +3,7 @@ using Mezzo.RealityBridge;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
 namespace Mezzo.EditorTools
@@ -260,7 +261,15 @@ namespace Mezzo.EditorTools
 
         private static Material Material(string name, Color color)
         {
-            Material material = new(Shader.Find("Universal Render Pipeline/Lit"));
+            bool srpActive = GraphicsSettings.currentRenderPipeline != null;
+            Shader shader = srpActive ? Shader.Find("Universal Render Pipeline/Lit") : Shader.Find("Standard");
+
+            if (shader == null)
+            {
+                shader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
+            }
+
+            Material material = new(shader);
             material.name = name;
             material.color = color;
             return material;
