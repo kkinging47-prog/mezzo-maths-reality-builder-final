@@ -10,6 +10,7 @@ namespace Mezzo.RealityBridge
         public Animator animator;
         public Transform characterRoot;
         public Transform startPoint;
+        public LearnerCrossingMotor crossingMotor;
 
         [Header("Presentation Sequence")]
         public PlayableDirector crossingTimeline;
@@ -30,6 +31,11 @@ namespace Mezzo.RealityBridge
                 crossingTimeline.stopped += HandleTimelineStopped;
             }
 
+            if (crossingMotor != null)
+            {
+                crossingMotor.Completed += HandleMotorCompleted;
+            }
+
             ResetCharacter();
         }
 
@@ -39,19 +45,35 @@ namespace Mezzo.RealityBridge
             {
                 crossingTimeline.stopped -= HandleTimelineStopped;
             }
+
+            if (crossingMotor != null)
+            {
+                crossingMotor.Completed -= HandleMotorCompleted;
+            }
         }
 
         public void PlayCrossing()
         {
-            if (IsCrossing || crossingTimeline == null)
+            if (IsCrossing)
             {
                 return;
             }
 
-            IsCrossing = true;
-            CrossingStarted?.Invoke();
-            crossingTimeline.time = 0;
-            crossingTimeline.Play();
+            if (crossingTimeline != null)
+            {
+                IsCrossing = true;
+                CrossingStarted?.Invoke();
+                crossingTimeline.time = 0;
+                crossingTimeline.Play();
+                return;
+            }
+
+            if (crossingMotor != null)
+            {
+                IsCrossing = true;
+                CrossingStarted?.Invoke();
+                crossingMotor.PlayCrossing();
+            }
         }
 
         public void ResetCharacter()
@@ -63,6 +85,12 @@ namespace Mezzo.RealityBridge
                 crossingTimeline.Stop();
                 crossingTimeline.time = 0;
                 crossingTimeline.Evaluate();
+            }
+
+            if (crossingMotor != null)
+            {
+                crossingMotor.ResetMotor();
+                return;
             }
 
             if (characterRoot != null && startPoint != null)
@@ -79,6 +107,12 @@ namespace Mezzo.RealityBridge
 
         public void TriggerCelebration()
         {
+            if (crossingMotor != null)
+            {
+                crossingMotor.PlayCelebration();
+                return;
+            }
+
             if (animator != null && !string.IsNullOrWhiteSpace(celebrateTrigger))
             {
                 animator.SetTrigger(celebrateTrigger);
@@ -86,6 +120,18 @@ namespace Mezzo.RealityBridge
         }
 
         private void HandleTimelineStopped(PlayableDirector director)
+        {
+            if (!IsCrossing)
+            {
+                return;
+            }
+
+            IsCrossing = false;
+            TriggerCelebration();
+            CrossingCompleted?.Invoke();
+        }
+
+        private void HandleMotorCompleted()
         {
             if (!IsCrossing)
             {
