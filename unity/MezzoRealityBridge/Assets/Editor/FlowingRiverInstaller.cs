@@ -29,11 +29,17 @@ namespace Mezzo.EditorTools
                 return;
             }
 
+            // The previous visual-polish pass bobbed the whole water body. Remove that now;
+            // the river body stays fixed while only the surface currents move.
+            WaterSurfaceMotion oldMotion = river.GetComponent<WaterSurfaceMotion>();
+            if (oldMotion != null)
+                Object.DestroyImmediate(oldMotion);
+
             EnsureFolder(TextureFolder);
             EnsureFolder(MaterialFolder);
 
-            RemoveOldLayer(river.transform, "RiverCurrent_Main");
-            RemoveOldLayer(river.transform, "RiverCurrent_Highlights");
+            RemoveOldLayer("RiverCurrent_Main");
+            RemoveOldLayer("RiverCurrent_Highlights");
 
             Texture2D mainTexture = BuildFlowTexture(TextureFolder + "/RiverCurrent_Main.png", false);
             Texture2D highlightTexture = BuildFlowTexture(TextureFolder + "/RiverCurrent_Highlights.png", true);
@@ -41,36 +47,35 @@ namespace Mezzo.EditorTools
             Material mainMaterial = BuildWaterLayerMaterial(
                 MaterialFolder + "/RiverCurrent_Main.mat",
                 mainTexture,
-                new Color(0.11f, 0.48f, 0.73f, 0.34f),
+                new Color(0.11f, 0.48f, 0.73f, 0.36f),
                 new Vector2(2.2f, 4.5f));
 
             Material highlightMaterial = BuildWaterLayerMaterial(
                 MaterialFolder + "/RiverCurrent_Highlights.mat",
                 highlightTexture,
-                new Color(0.70f, 0.92f, 1.00f, 0.20f),
+                new Color(0.76f, 0.95f, 1.00f, 0.23f),
                 new Vector2(2.8f, 6.0f));
 
             GameObject main = CreateLayer(
                 river.transform,
                 "RiverCurrent_Main",
-                -0.039f,
+                -0.036f,
                 mainMaterial,
-                new Vector2(0.007f, 0.075f),
-                0.004f,
+                new Vector2(0.006f, 0.078f),
+                0.0035f,
                 1.0f,
                 0f);
 
             GameObject highlights = CreateLayer(
                 river.transform,
                 "RiverCurrent_Highlights",
-                -0.034f,
+                -0.031f,
                 highlightMaterial,
-                new Vector2(-0.004f, 0.115f),
-                0.003f,
+                new Vector2(-0.003f, 0.122f),
+                0.0025f,
                 1.35f,
                 1.7f);
 
-            // Keep the original water as the base body of the river.
             Renderer baseRenderer = river.GetComponent<Renderer>();
             if (baseRenderer != null)
             {
@@ -78,6 +83,7 @@ namespace Mezzo.EditorTools
                 baseRenderer.receiveShadows = false;
             }
 
+            EditorUtility.SetDirty(river);
             EditorUtility.SetDirty(main);
             EditorUtility.SetDirty(highlights);
             EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
@@ -85,7 +91,7 @@ namespace Mezzo.EditorTools
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
-            Debug.Log("Flowing river installed. Two current layers now move downstream along the river without moving the bridge or river body.");
+            Debug.Log("Flowing river installed. Two transparent surface-current layers now travel downstream along the Z axis while the river body stays fixed.");
         }
 
         private static GameObject CreateLayer(
@@ -104,12 +110,8 @@ namespace Mezzo.EditorTools
             layer.transform.position = new Vector3(river.position.x, worldY, river.position.z);
             layer.transform.rotation = Quaternion.identity;
 
-            // Unity's Plane primitive is 10 x 10 units.
-            Vector3 riverScale = river.transform.lossyScale;
-            layer.transform.localScale = new Vector3(
-                (3.10f / 10f),
-                1f,
-                (10.05f / 10f));
+            // Unity Plane is 10 x 10. RiverWater in the presentation is 3.15 x 10.2.
+            layer.transform.localScale = new Vector3(0.31f, 1f, 1.005f);
 
             Renderer renderer = layer.GetComponent<Renderer>();
             renderer.sharedMaterial = material;
@@ -131,9 +133,9 @@ namespace Mezzo.EditorTools
 
         private static Texture2D BuildFlowTexture(string path, bool highlights)
         {
-            Texture2D existing = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
-            if (existing != null)
-                return existing;
+            // Rebuild every time so rerunning the command also refreshes an older version.
+            if (File.Exists(path))
+                AssetDatabase.DeleteAsset(path);
 
             const int width = 256;
             const int height = 512;
@@ -159,12 +161,12 @@ namespace Mezzo.EditorTools
                     }
                     else
                     {
-                        alpha = 0.30f + longWave * 0.28f + noise * 0.18f;
+                        alpha = 0.24f + longWave * 0.24f + noise * 0.15f;
                     }
 
                     Color c = highlights
                         ? new Color(1f, 1f, 1f, alpha)
-                        : new Color(0.30f + noise * 0.18f, 0.72f + longWave * 0.15f, 1f, alpha);
+                        : new Color(0.24f + noise * 0.20f, 0.68f + longWave * 0.18f, 1f, alpha);
 
                     pixels[y * width + x] = c;
                 }
@@ -223,19 +225,22 @@ namespace Mezzo.EditorTools
             if (material.HasProperty("_Metallic")) material.SetFloat("_Metallic", 0f);
             if (material.HasProperty("_Smoothness")) material.SetFloat("_Smoothness", 0.78f);
 
-            // URP transparent surface configuration.
+            // URP alpha-blended transparent surface.
             if (material.HasProperty("_Surface")) material.SetFloat("_Surface", 1f);
             if (material.HasProperty("_Blend")) material.SetFloat("_Blend", 0f);
             if (material.HasProperty("_ZWrite")) material.SetFloat("_ZWrite", 0f);
+            if (material.HasProperty("_SrcBlend")) material.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
+            if (material.HasProperty("_DstBlend")) material.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
             material.SetOverrideTag("RenderType", "Transparent");
             material.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            material.DisableKeyword("_ALPHATEST_ON");
             material.renderQueue = (int)RenderQueue.Transparent;
 
             EditorUtility.SetDirty(material);
             return material;
         }
 
-        private static void RemoveOldLayer(Transform river, string name)
+        private static void RemoveOldLayer(string name)
         {
             GameObject existing = GameObject.Find(name);
             if (existing != null)
