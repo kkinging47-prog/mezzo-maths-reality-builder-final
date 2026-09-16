@@ -35,6 +35,8 @@ namespace Mezzo.EditorTools
             AnimationClip idle = FindClip(new[] { "idle" });
             AnimationClip walk = FindClip(new[] { "walk" });
             AnimationClip celebrate = FindClip(new[] { "victory", "celebr", "cheer", "happy" });
+            AnimationClip climb = FindClip(new[] { "stairsup", "stairs_up", "stairup", "stair_up", "climbstairs", "climb_stairs", "upstairs", "up_stairs" });
+            AnimationClip descend = FindClip(new[] { "stairsdown", "stairs_down", "stairdown", "stair_down", "descendstairs", "descend_stairs", "downstairs", "down_stairs" });
 
             if (characterPrefab == null)
             {
@@ -62,6 +64,16 @@ namespace Mezzo.EditorTools
             walkState.motion = walk;
             AnimatorState celebrateState = machine.AddState("Celebrate");
             celebrateState.motion = celebrate;
+            if (climb != null)
+            {
+                AnimatorState climbState = machine.AddState("ClimbStairs");
+                climbState.motion = climb;
+            }
+            if (descend != null)
+            {
+                AnimatorState descendState = machine.AddState("DescendStairs");
+                descendState.motion = descend;
+            }
             machine.defaultState = idleState;
 
             GameObject characterRoot = GameObject.Find("WORLD_PRESENTATION/Character") ?? GameObject.Find("Character");
@@ -83,11 +95,7 @@ namespace Mezzo.EditorTools
 
             foreach (Transform child in characterRoot.transform.Cast<Transform>().ToList())
             {
-                if (child == learnerStart)
-                {
-                    continue;
-                }
-
+                if (child == learnerStart) continue;
                 if (child.name.Contains("PLACEHOLDER", StringComparison.OrdinalIgnoreCase) || child.name == "MezzoLearner")
                 {
                     UnityEngine.Object.DestroyImmediate(child.gameObject);
@@ -101,28 +109,29 @@ namespace Mezzo.EditorTools
             NormalizeCharacterHeight(learner, 1.52f);
 
             Animator animator = learner.GetComponent<Animator>();
-            if (animator == null)
-            {
-                animator = learner.AddComponent<Animator>();
-            }
+            if (animator == null) animator = learner.AddComponent<Animator>();
             animator.runtimeAnimatorController = controller;
             animator.applyRootMotion = false;
             animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
 
             LearnerCrossingMotor motor = learner.GetComponent<LearnerCrossingMotor>();
-            if (motor == null)
-            {
-                motor = learner.AddComponent<LearnerCrossingMotor>();
-            }
+            if (motor == null) motor = learner.AddComponent<LearnerCrossingMotor>();
             motor.animator = animator;
             motor.characterRoot = learner.transform;
             motor.startPoint = learnerStart;
             motor.idleState = "Idle";
             motor.walkState = "Walk";
+            motor.climbState = climb != null ? "ClimbStairs" : "";
+            motor.descendState = descend != null ? "DescendStairs" : "";
             motor.celebrateState = "Celebrate";
-            motor.walkSpeed = 1.45f;
+            motor.approachSpeed = 1.35f;
+            motor.stairSpeed = 1.05f;
+            motor.deckSpeed = 1.45f;
+            motor.exitSpeed = 1.30f;
             motor.deckY = 1.28f;
             motor.facingY = 90f;
+            motor.stairCount = 6;
+            motor.verticalSmoothing = 10f;
 
             GameObject systems = GameObject.Find("WORLD_PRESENTATION/Systems") ?? GameObject.Find("Systems");
             CharacterMissionController characterMission = systems != null ? systems.GetComponent<CharacterMissionController>() : null;
@@ -146,7 +155,7 @@ namespace Mezzo.EditorTools
             AssetDatabase.SaveAssets();
 
             Selection.activeGameObject = learner;
-            Debug.Log($"Rigged learner installed. Character: {characterPrefab.name}; Idle: {idle.name}; Walk: {walk.name}; Celebrate: {celebrate.name}. Play the scene, build stages 1-5, then trigger stage 6 to test the crossing.");
+            Debug.Log($"Rigged learner installed. Character: {characterPrefab.name}; Idle: {idle.name}; Walk: {walk.name}; Celebrate: {celebrate.name}; Climb: {(climb != null ? climb.name : "not installed")}; Descend: {(descend != null ? descend.name : "not installed")}.");
         }
 
         private static GameObject FindCharacterPrefab()
@@ -154,33 +163,18 @@ namespace Mezzo.EditorTools
             foreach (string guid in AssetDatabase.FindAssets("t:GameObject", new[] { CharacterFolder }))
             {
                 string path = AssetDatabase.GUIDToAssetPath(guid);
-                if (!path.EndsWith(".fbx", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                if (Path.GetFileNameWithoutExtension(path).Contains("@"))
-                {
-                    continue;
-                }
-
+                if (!path.EndsWith(".fbx", StringComparison.OrdinalIgnoreCase)) continue;
+                if (Path.GetFileNameWithoutExtension(path).Contains("@")) continue;
                 GameObject asset = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-                if (asset != null && asset.GetComponentInChildren<SkinnedMeshRenderer>(true) != null)
-                {
-                    return asset;
-                }
+                if (asset != null && asset.GetComponentInChildren<SkinnedMeshRenderer>(true) != null) return asset;
             }
 
             foreach (string guid in AssetDatabase.FindAssets("t:GameObject", new[] { CharacterFolder }))
             {
                 string path = AssetDatabase.GUIDToAssetPath(guid);
                 GameObject asset = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-                if (asset != null && asset.GetComponentInChildren<SkinnedMeshRenderer>(true) != null)
-                {
-                    return asset;
-                }
+                if (asset != null && asset.GetComponentInChildren<SkinnedMeshRenderer>(true) != null) return asset;
             }
-
             return null;
         }
 
@@ -190,44 +184,23 @@ namespace Mezzo.EditorTools
             foreach (string guid in fbxGuids)
             {
                 string path = AssetDatabase.GUIDToAssetPath(guid);
-                string lowerPath = path.ToLowerInvariant();
-                if (!keywords.Any(lowerPath.Contains))
-                {
-                    continue;
-                }
-
+                string normalized = path.ToLowerInvariant().Replace(" ", "").Replace("-", "");
+                if (!keywords.Any(k => normalized.Contains(k.Replace(" ", "").Replace("-", "")))) continue;
                 AnimationClip clip = AssetDatabase.LoadAllAssetsAtPath(path)
                     .OfType<AnimationClip>()
                     .FirstOrDefault(c => !c.name.StartsWith("__preview__", StringComparison.OrdinalIgnoreCase));
-
-                if (clip != null)
-                {
-                    return clip;
-                }
+                if (clip != null) return clip;
             }
-
             return null;
         }
 
         private static void NormalizeCharacterHeight(GameObject learner, float targetHeight)
         {
             Renderer[] renderers = learner.GetComponentsInChildren<Renderer>(true);
-            if (renderers.Length == 0)
-            {
-                return;
-            }
-
+            if (renderers.Length == 0) return;
             Bounds bounds = renderers[0].bounds;
-            for (int i = 1; i < renderers.Length; i++)
-            {
-                bounds.Encapsulate(renderers[i].bounds);
-            }
-
-            if (bounds.size.y < 0.01f)
-            {
-                return;
-            }
-
+            for (int i = 1; i < renderers.Length; i++) bounds.Encapsulate(renderers[i].bounds);
+            if (bounds.size.y < 0.01f) return;
             float factor = Mathf.Clamp(targetHeight / bounds.size.y, 0.05f, 20f);
             learner.transform.localScale *= factor;
         }
@@ -239,10 +212,7 @@ namespace Mezzo.EditorTools
             for (int i = 1; i < pieces.Length; i++)
             {
                 string next = $"{current}/{pieces[i]}";
-                if (!AssetDatabase.IsValidFolder(next))
-                {
-                    AssetDatabase.CreateFolder(current, pieces[i]);
-                }
+                if (!AssetDatabase.IsValidFolder(next)) AssetDatabase.CreateFolder(current, pieces[i]);
                 current = next;
             }
         }
