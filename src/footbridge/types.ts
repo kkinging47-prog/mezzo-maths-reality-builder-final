@@ -168,8 +168,10 @@ export interface FootbridgeProjectState {
   floodIdentified?: boolean;
   walkwaySelected?: number;
   selectedBridgeSystem?: BridgeSystemId;
+  selectedSupplierId?: string;
   decisionRecords: Record<number, DecisionRecord>;
   notebook: Record<string, string[]>;
+  calculatedQuantities: Record<string, number>;
   materialsRequired: Record<string, number>;
   materialsOrdered: Record<string, number>;
   packagesOrdered: Record<string, number>;
