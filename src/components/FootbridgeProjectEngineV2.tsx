@@ -7,6 +7,8 @@ import FootbridgeMission2 from './footbridge/FootbridgeMission2';
 import FootbridgeMission3 from './footbridge/FootbridgeMission3';
 import FootbridgeMission4 from './footbridge/FootbridgeMission4';
 import FootbridgeMission5 from './footbridge/FootbridgeMission5';
+import FootbridgeMission6 from './footbridge/FootbridgeMission6';
+import FootbridgeMission7 from './footbridge/FootbridgeMission7';
 import './footbridge-project-engine.css';
 
 const SAFETY_NOTICE='Educational simulation only. Structural values in this project are fictional learning data and must not be used for real bridge construction. Real bridges require qualified civil/structural engineers and site-specific engineering assessment.';
@@ -25,7 +27,7 @@ export default function FootbridgeProjectEngineV2(){
 
     <nav className="mission-roadmap" aria-label="Footbridge project missions">{([1,2,3,4,5,6,7] as MissionId[]).map(id=>{const unlocked=id<=state.highestUnlockedMission;const complete=c.missionComplete(id);return <button key={id} type="button" disabled={!unlocked} className={`${state.currentMission===id?'active':''} ${complete?'complete':''}`} onClick={()=>unlocked&&c.setState(current=>({...current,currentMission:id}))}><span>{id}</span><strong>{MISSION_NAMES[id]}</strong></button>;})}</nav>
 
-    <div className="project-context-strip"><span><b>Current mission:</b> {title}</span><span><b>Site:</b> {selectedSite?.name??'Not yet selected'}</span><span><b>System:</b> {state.selectedBridgeSystem?s.designCards[state.selectedBridgeSystem].name:'Not yet selected'}</span><span><b>Assessed actions:</b> {c.completedCount}/30</span></div>
+    <div className="project-context-strip"><span><b>Current mission:</b> {title}</span><span><b>Site:</b> {selectedSite?.name??'Not yet selected'}</span><span><b>System:</b> {state.selectedBridgeSystem?s.designCards[state.selectedBridgeSystem].name:'Not yet selected'}</span><span><b>Assessed actions:</b> {c.completedCount}/30</span>{state.redesignCount>0&&<span><b>Redesign cycles:</b> {state.redesignCount}</span>}</div>
     <div className="mission-transition-card"><span>{subtitle}</span></div>
     {missionContent}
 
@@ -39,8 +41,6 @@ function renderMission(c:ReturnType<typeof useFootbridgeProject>,mission:Mission
   if(mission===3)return [<FootbridgeMission3 c={c}/>,MISSION_NAMES[3],'The survey is complete. Compare the fictional Mezzo Design Cards and make a reasoned recommendation.'];
   if(mission===4)return [<FootbridgeMission4 c={c}/>,MISSION_NAMES[4],'The planning committee has approved a system. Turn the design into quantities, packages and procurement cost.'];
   if(mission===5)return [<FootbridgeMission5 c={c}/>,MISSION_NAMES[5],'Your materials order is ready. Plan transport, labour and the complete project budget.'];
-  if(mission===6)return [<FutureMission title="Construction and inspection" text="Your orders and transport plan are saved. The next build block will make the delivered materials physically match those decisions, then let you inspect the virtual project before testing."/>,MISSION_NAMES[6],'Your materials are on the way. Inspect what actually arrives before construction begins.'];
-  return [<FutureMission title="Testing, diagnosis, redesign and reporting" text="Normal-use, peak-use and environmental testing will be driven by the stored project state. Failures will show symptoms first and send the learner into diagnosis and targeted redesign rather than a full restart."/>,MISSION_NAMES[7],'Construction decisions will be tested progressively. Mathematics will determine what happens next.'];
+  if(mission===6)return [<FootbridgeMission6 c={c}/>,MISSION_NAMES[6],'Your materials have arrived. Inspect the delivery and the project before authorising testing.'];
+  return [<FootbridgeMission7 c={c}/>,MISSION_NAMES[7],'Construction is complete. Run staged tests, diagnose any observable problem, redesign only what is necessary and prepare the final report.'];
 }
-
-function FutureMission({title,text}:{title:string;text:string}){return <div className="project-mission-content"><div className="mission-narrative"><span>Next implementation block</span><h2>{title}</h2><p>{text}</p></div><div className="foundation-summary"><strong>Your current scenario and all previous decisions remain saved.</strong><span>No project data is reset when moving between missions.</span></div></div>;}
