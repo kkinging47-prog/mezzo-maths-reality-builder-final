@@ -189,9 +189,13 @@ export interface FootbridgeProjectState {
   normalTestStatus?: string;
   peakTestStatus?: string;
   environmentTestStatus?: string;
+  testHistory: string[];
   diagnosisAttempts: number;
   diagnosisCorrect: boolean;
+  diagnosisHistory: string[];
+  lastFailureCause?: string;
   redesignCount: number;
+  redesignHistory: string[];
   competencyScores: Partial<Record<CompetencyTag, number>>;
   misconceptionTags: MisconceptionTag[];
   finalProjectStatus?: ProjectOutcome;
