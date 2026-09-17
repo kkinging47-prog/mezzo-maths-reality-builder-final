@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react';
 import { MISSION_NAMES } from '../footbridge/decisionCatalog';
 import { MissionId } from '../footbridge/types';
 import { useFootbridgeProject } from '../footbridge/useFootbridgeProject';
@@ -28,11 +29,11 @@ export default function FootbridgeProjectEngineV2(){
     <div className="mission-transition-card"><span>{subtitle}</span></div>
     {missionContent}
 
-    <details className="project-notebook"><summary>📘 Project Notebook</summary><div className="notebook-grid">{Object.entries(state.notebook).filter(([,entries])=>entries.length>0).map(([section,entries])=><article key={section}><h3>{section.replaceAll('_',' ')}</h3>{entries.map((entry,index)=><p key={`${section}-${index}`}>{entry}</p>)}</article>)}{Object.values(state.notebook).every(entries=>entries.length===0)&&<p>Your project observations, calculations and decisions will appear here as you work.</p>}</div></details>
+    <details className="project-notebook"><summary>📘 Project Notebook</summary><div className="notebook-grid">{Object.entries(state.notebook).filter(([,entries])=>entries.length>0).map(([section,entries])=><article key={section}><h3>{section.replace(/_/g,' ')}</h3>{entries.map((entry,index)=><p key={`${section}-${index}`}>{entry}</p>)}</article>)}{Object.values(state.notebook).every(entries=>entries.length===0)&&<p>Your project observations, calculations and decisions will appear here as you work.</p>}</div></details>
   </section>;
 }
 
-function renderMission(c:ReturnType<typeof useFootbridgeProject>,mission:MissionId):[JSX.Element,string,string]{
+function renderMission(c:ReturnType<typeof useFootbridgeProject>,mission:MissionId):[ReactElement,string,string]{
   if(mission===1)return [<FootbridgeMission1 c={c}/>,MISSION_NAMES[1],'We have a serious community problem. Investigate it before proposing anything.'];
   if(mission===2)return [<FootbridgeMission2 c={c}/>,MISSION_NAMES[2],'Your community investigation is complete. Collect the field evidence needed for planning.'];
   if(mission===3)return [<FootbridgeMission3 c={c}/>,MISSION_NAMES[3],'The survey is complete. Compare the fictional Mezzo Design Cards and make a reasoned recommendation.'];
