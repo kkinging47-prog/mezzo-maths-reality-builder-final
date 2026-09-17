@@ -1,8 +1,10 @@
-import { ReactNode, useMemo, useRef } from 'react';
+import { useMemo, useRef } from 'react';
+import type { ReactNode } from 'react';
 import { decisionsForMission } from '../../footbridge/decisionCatalog';
 import { DECISION_STORIES, MISSION_INTROS, MISSION_OUTROS } from '../../footbridge/sessionStories';
 import { MissionId } from '../../footbridge/types';
 import { FootbridgeController } from '../../footbridge/useFootbridgeProject';
+import './footbridge-session-stage.css';
 
 interface Props {
   c: FootbridgeController;
