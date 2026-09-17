@@ -193,12 +193,18 @@ export interface FootbridgeProjectState {
   diagnosisAttempts: number;
   diagnosisCorrect: boolean;
   diagnosisHistory: string[];
+  diagnosisHintLevel: number;
+  diagnosisHintsUsed: number;
   lastFailureCause?: string;
   redesignCount: number;
   redesignHistory: string[];
+  redesignTargetMission?: MissionId;
   competencyScores: Partial<Record<CompetencyTag, number>>;
   misconceptionTags: MisconceptionTag[];
   finalProjectStatus?: ProjectOutcome;
+  finalReflection?: string;
+  finalReportGeneratedAt?: string;
+  projectCompletedAt?: string;
   createdAt: string;
   updatedAt: string;
 }
