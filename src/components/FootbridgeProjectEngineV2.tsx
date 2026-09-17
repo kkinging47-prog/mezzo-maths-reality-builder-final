@@ -8,6 +8,7 @@ import FootbridgeMission4 from './footbridge/FootbridgeMission4';
 import FootbridgeMission5 from './footbridge/FootbridgeMission5';
 import FootbridgeMission6 from './footbridge/FootbridgeMission6';
 import FootbridgeMission7 from './footbridge/FootbridgeMission7';
+import FootbridgeSessionStage from './footbridge/FootbridgeSessionStage';
 import './footbridge-project-engine.css';
 import './footbridge-kid-adventure.css';
 
@@ -23,6 +24,16 @@ const LEARNER_MISSIONS: Record<MissionId,{icon:string;title:string;short:string;
   7:{icon:'🎉',title:'Test, Fix & Celebrate!',short:'Test your bridge and connect the towns',guide:'Ama says: “This is the big moment! If something goes wrong, investigate it, fix it and try again.”'},
 };
 
+const MISSION_SCENES: Record<MissionId,string> = {
+  1:'/footbridge/scenes/mission-1-community.svg',
+  2:'/footbridge/scenes/mission-2-river.svg',
+  3:'/footbridge/scenes/mission-3-design.svg',
+  4:'/footbridge/scenes/mission-4-materials.svg',
+  5:'/footbridge/scenes/mission-5-logistics.svg',
+  6:'/footbridge/scenes/mission-6-build.svg',
+  7:'/footbridge/scenes/mission-7-testing.svg',
+};
+
 export default function FootbridgeProjectEngineV2(){
   const c=useFootbridgeProject();
   const {state}=c;
@@ -32,7 +43,7 @@ export default function FootbridgeProjectEngineV2(){
   const missionContent=renderMission(c,state.currentMission);
   const completedMissions=([1,2,3,4,5,6,7] as MissionId[]).filter(id=>c.missionComplete(id)).length;
 
-  return <section className="footbridge-project-engine kid-adventure">
+  return <section className="footbridge-project-engine kid-adventure session-adventure-layout">
     <div className="adventure-hero">
       <div className="hero-copy">
         <span className="adventure-kicker">🌉 MEZZO MATHS ADVENTURE</span>
@@ -58,7 +69,7 @@ export default function FootbridgeProjectEngineV2(){
       <strong className="progress-badge">{c.progressPercent}%</strong>
     </div>
 
-    <div className="adventure-map-heading"><div><span>🗺️ YOUR ADVENTURE MAP</span><h2>Where are we going next?</h2></div><p>Finish a mission to unlock the next part of the journey.</p></div>
+    <div className="adventure-map-heading"><div><span>🗺️ YOUR ADVENTURE MAP</span><h2>Choose an unlocked mission</h2></div><p>The activity itself now opens one story session at a time.</p></div>
     <nav className="mission-roadmap kid-roadmap" aria-label="Footbridge adventure missions">
       {([1,2,3,4,5,6,7] as MissionId[]).map(id=>{
         const item=LEARNER_MISSIONS[id];
@@ -71,8 +82,6 @@ export default function FootbridgeProjectEngineV2(){
       })}
     </nav>
 
-    <div className="guide-message"><div className="guide-message-avatar">{state.currentMission%2===1?'👧🏾':'👦🏾'}</div><div><span>YOUR MISSION NOW</span><strong>{mission.title}</strong><p>{mission.guide}</p></div></div>
-
     <div className="adventure-backpack">
       <span>🎒 <b>Adventure Backpack</b></span>
       <span>📍 {selectedSite?.name??'Choose a river crossing'}</span>
@@ -81,7 +90,9 @@ export default function FootbridgeProjectEngineV2(){
       {state.redesignCount>0&&<span>🔁 {state.redesignCount} fix-it round{state.redesignCount===1?'':'s'}</span>}
     </div>
 
-    {missionContent}
+    <FootbridgeSessionStage c={c} missionId={state.currentMission} missionTitle={mission.title} scene={MISSION_SCENES[state.currentMission]}>
+      {missionContent}
+    </FootbridgeSessionStage>
 
     <details className="project-notebook kid-notebook"><summary>📘 Open My Project Notebook</summary><div className="notebook-grid">{Object.entries(state.notebook).filter(([,entries])=>entries.length>0).map(([section,entries])=><article key={section}><h3>{friendlySection(section)}</h3>{entries.map((entry,index)=><p key={`${section}-${index}`}>{entry}</p>)}</article>)}{Object.values(state.notebook).every(entries=>entries.length===0)&&<p>Your discoveries, calculations and choices will appear here as you explore.</p>}</div></details>
   </section>;
