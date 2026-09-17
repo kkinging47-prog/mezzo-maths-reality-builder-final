@@ -1,6 +1,13 @@
 import type { ReactElement } from 'react';
 import { MissionId } from '../footbridge/types';
 import { useFootbridgeProject } from '../footbridge/useFootbridgeProject';
+import mission1Image from '../footbridge/missionImages/mission1';
+import mission2Image from '../footbridge/missionImages/mission2';
+import mission3Image from '../footbridge/missionImages/mission3';
+import mission4Image from '../footbridge/missionImages/mission4clean';
+import mission5Image from '../footbridge/missionImages/mission5tiny';
+import mission6Image from '../footbridge/missionImages/mission6tiny';
+import mission7Image from '../footbridge/missionImages/mission7tiny';
 import FootbridgeMission1 from './footbridge/FootbridgeMission1';
 import FootbridgeMission2 from './footbridge/FootbridgeMission2';
 import FootbridgeMission3 from './footbridge/FootbridgeMission3';
@@ -25,13 +32,13 @@ const LEARNER_MISSIONS: Record<MissionId,{icon:string;title:string;short:string;
 };
 
 const MISSION_SCENES: Record<MissionId,string> = {
-  1:'/footbridge/scenes/mission-1-community.svg',
-  2:'/footbridge/scenes/mission-2-river.svg',
-  3:'/footbridge/scenes/mission-3-design.svg',
-  4:'/footbridge/scenes/mission-4-materials.svg',
-  5:'/footbridge/scenes/mission-5-logistics.svg',
-  6:'/footbridge/scenes/mission-6-build.svg',
-  7:'/footbridge/scenes/mission-7-testing.svg',
+  1:mission1Image,
+  2:mission2Image,
+  3:mission3Image,
+  4:mission4Image,
+  5:mission5Image,
+  6:mission6Image,
+  7:mission7Image,
 };
 
 export default function FootbridgeProjectEngineV2(){
