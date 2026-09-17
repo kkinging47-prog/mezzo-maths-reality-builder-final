@@ -1,6 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 import PageShell from '../components/PageShell';
 import MissionEngine from '../components/MissionEngine';
+import FootbridgeProjectEngine from '../components/FootbridgeProjectEngine';
 import { findProject } from '../data/projects';
 
 export default function ProjectPage() {
@@ -14,6 +15,16 @@ export default function ProjectPage() {
           <h1>Project not found</h1>
           <p>This project is not active yet. Go back to the maths worlds and select a beginner mission.</p>
           <Link className="btn btn-primary" to="/student/worlds">Back to worlds</Link>
+        </section>
+      </PageShell>
+    );
+  }
+
+  if (project.id === 'footbridge-stream') {
+    return (
+      <PageShell>
+        <section className="section no-top">
+          <FootbridgeProjectEngine />
         </section>
       </PageShell>
     );
