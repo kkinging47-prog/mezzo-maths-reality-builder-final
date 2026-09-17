@@ -1,0 +1,14 @@
+import { FootbridgeController } from '../../footbridge/useFootbridgeProject';
+
+export default function FootbridgeMission3({ c }: { c: FootbridgeController }) {
+  const s = c.state.scenario;
+  const task = (id:number) => c.recordFor(id).completed ? 'project-action complete' : 'project-action';
+  const selected = c.state.selectedBridgeSystem ? s.designCards[c.state.selectedBridgeSystem] : null;
+
+  return <div className="project-mission-content">
+    <div className="mission-narrative"><span>Mission 3 · Planning office</span><h2>Select a fictional Mezzo simulation system.</h2><p>All three systems can succeed under suitable conditions. Compare cost, transport, time, availability and environmental suitability. These are educational simulation values, not engineering specifications.</p></div>
+    <div className="design-card-grid">{Object.values(s.designCards).map(card=><button key={card.id} type="button" className={c.state.selectedBridgeSystem===card.id?'selected':''} onClick={()=>c.setState(current=>({...current,selectedBridgeSystem:card.id}))}><strong>{card.name}</strong><span>{card.summary}</span><small>Relative cost {card.relativeCost}/5 · Transport difficulty {card.transportDifficulty}/5 · Maintenance {card.maintenanceLevel}/5 · Construction time {card.constructionTime}/5 · Availability {card.availability}/5 · Environmental suitability {card.environmentalSuitability}/5 · Simulation durability {card.simulationDurability}/5</small></button>)}</div>
+    <article className={task(10)}><div><span>Design recommendation</span><h3>Explain why your selected system suits this scenario.</h3></div>{selected&&<div className="evidence-strip"><b>Selected:</b> {selected.name}<b>Community budget:</b> GHS {s.communityBudget.toLocaleString()}<b>Vehicle capacity:</b> {s.vehicleCapacityUnits} simulation delivery units</div>}<textarea rows={4} value={c.response('10-reason')} onChange={e=>c.setResponse('10-reason',e.target.value)} placeholder="Consider access, cost, transport, availability, construction time or environmental information."/><button className="btn btn-primary" type="button" disabled={!selected} onClick={()=>{if(!selected)return; const reason=c.response('10-reason').trim(); const ok=reason.length>=12; if(!ok)return c.setDecisionFeedback(10,'Give the committee a short reason based on the project information.'); c.recordAttempt(10,selected.id,true,{completeOnAttempt:true,notebookSection:'DESIGN_DECISIONS',notebookEntry:`${selected.name} selected. Learner justification: ${reason}`}); c.setDecisionFeedback(10,'Recommendation accepted. The procurement office will now use this system’s fictional Mezzo Design Card.');}}>Submit recommendation</button>{c.feedback[10]&&<p className="action-feedback">{c.feedback[10]}</p>}</article>
+    {c.missionComplete(3)&&<button className="mission-advance" type="button" onClick={c.unlockNextMission}>Preliminary design approved. Open the procurement office →</button>}
+  </div>;
+}
