@@ -9,6 +9,7 @@ import FootbridgeMission5 from './footbridge/FootbridgeMission5';
 import FootbridgeMission6 from './footbridge/FootbridgeMission6';
 import FootbridgeMission7 from './footbridge/FootbridgeMission7';
 import './footbridge-project-engine.css';
+import './footbridge-kid-adventure.css';
 
 const SAFETY_NOTICE='Educational simulation only. Structural values in this project are fictional learning data and must not be used for real bridge construction. Real bridges require qualified civil/structural engineers and site-specific engineering assessment.';
 
