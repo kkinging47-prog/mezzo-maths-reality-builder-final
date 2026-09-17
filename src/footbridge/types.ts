@@ -163,6 +163,7 @@ export interface FootbridgeProjectState {
   scenario: FootbridgeScenario;
   currentMission: MissionId;
   highestUnlockedMission: MissionId;
+  missionSessions: Partial<Record<MissionId, number>>;
   selectedSiteId?: CrossingSite['id'];
   riverSpanStudent?: number;
   floodIdentified?: boolean;
