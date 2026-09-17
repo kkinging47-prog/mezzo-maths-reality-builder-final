@@ -1,7 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 import PageShell from '../components/PageShell';
 import MissionEngine from '../components/MissionEngine';
-import FootbridgeProjectEngine from '../components/FootbridgeProjectEngine';
+import FootbridgeProjectEngineV2 from '../components/FootbridgeProjectEngineV2';
 import { findProject } from '../data/projects';
 
 export default function ProjectPage() {
@@ -24,7 +24,7 @@ export default function ProjectPage() {
     return (
       <PageShell>
         <section className="section no-top">
-          <FootbridgeProjectEngine />
+          <FootbridgeProjectEngineV2 />
         </section>
       </PageShell>
     );
