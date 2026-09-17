@@ -45,6 +45,7 @@ export function createInitialFootbridgeState(scenario: FootbridgeScenario): Foot
       REDESIGN: [],
       FINAL_REPORT: [],
     },
+    calculatedQuantities: {},
     materialsRequired: {},
     materialsOrdered: {},
     packagesOrdered: {},
@@ -69,7 +70,20 @@ export function loadFootbridgeState(): FootbridgeProjectState | null {
     if (!raw) return null;
     const state = JSON.parse(raw) as FootbridgeProjectState;
     if (state.version !== 1 || !state.scenario?.scenarioId) return null;
-    return state;
+    return {
+      ...state,
+      decisionRecords: { ...emptyDecisionRecords(), ...(state.decisionRecords ?? {}) },
+      notebook: state.notebook ?? {},
+      calculatedQuantities: state.calculatedQuantities ?? {},
+      materialsRequired: state.materialsRequired ?? {},
+      materialsOrdered: state.materialsOrdered ?? {},
+      packagesOrdered: state.packagesOrdered ?? {},
+      materialsDelivered: state.materialsDelivered ?? {},
+      constructionDefects: state.constructionDefects ?? [],
+      inspectionFindings: state.inspectionFindings ?? [],
+      competencyScores: state.competencyScores ?? {},
+      misconceptionTags: state.misconceptionTags ?? [],
+    };
   } catch {
     return null;
   }
