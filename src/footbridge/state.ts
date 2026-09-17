@@ -25,6 +25,7 @@ export function createInitialFootbridgeState(scenario: FootbridgeScenario): Foot
     scenario,
     currentMission: 1,
     highestUnlockedMission: 1,
+    missionSessions: {},
     decisionRecords: emptyDecisionRecords(),
     notebook: {
       COMMUNITY_SURVEY: [],
@@ -77,6 +78,7 @@ export function loadFootbridgeState(): FootbridgeProjectState | null {
     if (state.version !== 1 || !state.scenario?.scenarioId) return null;
     return {
       ...state,
+      missionSessions: state.missionSessions ?? {},
       decisionRecords: { ...emptyDecisionRecords(), ...(state.decisionRecords ?? {}) },
       notebook: state.notebook ?? {},
       calculatedQuantities: state.calculatedQuantities ?? {},
