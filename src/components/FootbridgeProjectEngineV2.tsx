@@ -1,13 +1,6 @@
 import type { ReactElement } from 'react';
 import { MissionId } from '../footbridge/types';
 import { useFootbridgeProject } from '../footbridge/useFootbridgeProject';
-import mission1Image from '../footbridge/missionImages/mission1';
-import mission2Image from '../footbridge/missionImages/mission2';
-import mission3Image from '../footbridge/missionImages/mission3';
-import mission4Image from '../footbridge/missionImages/mission4clean';
-import mission5Image from '../footbridge/missionImages/mission5tiny';
-import mission6Image from '../footbridge/missionImages/mission6tiny';
-import mission7Image from '../footbridge/missionImages/mission7tiny';
 import FootbridgeMission1 from './footbridge/FootbridgeMission1';
 import FootbridgeMission2 from './footbridge/FootbridgeMission2';
 import FootbridgeMission3 from './footbridge/FootbridgeMission3';
@@ -33,13 +26,13 @@ const LEARNER_MISSIONS: Record<MissionId,{icon:string;title:string;short:string;
 };
 
 const MISSION_SCENES: Record<MissionId,string> = {
-  1:mission1Image,
-  2:mission2Image,
-  3:mission3Image,
-  4:mission4Image,
-  5:mission5Image,
-  6:mission6Image,
-  7:mission7Image,
+  1:`${import.meta.env.BASE_URL}footbridge-missions/mission-1.webp`,
+  2:`${import.meta.env.BASE_URL}footbridge-missions/mission-2.webp`,
+  3:`${import.meta.env.BASE_URL}footbridge-missions/mission-3.webp`,
+  4:`${import.meta.env.BASE_URL}footbridge-missions/mission-4.webp`,
+  5:`${import.meta.env.BASE_URL}footbridge-missions/mission-5.webp`,
+  6:`${import.meta.env.BASE_URL}footbridge-missions/mission-6.webp`,
+  7:`${import.meta.env.BASE_URL}footbridge-missions/mission-7.webp`,
 };
 
 export default function FootbridgeProjectEngineV2(){

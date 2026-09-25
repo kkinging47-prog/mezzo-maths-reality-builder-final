@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { decisionsForMission } from '../../footbridge/decisionCatalog';
 import { DECISION_STORIES, MISSION_INTROS, MISSION_OUTROS } from '../../footbridge/sessionStories';
@@ -16,6 +16,8 @@ interface Props {
 
 export default function FootbridgeSessionStage({ c, missionId, missionTitle, scene, children }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
+  const [sceneFailed, setSceneFailed] = useState(false);
+  useEffect(() => setSceneFailed(false), [scene]);
   const decisions = useMemo(() => decisionsForMission(missionId), [missionId]);
   const lastPage = decisions.length + 1;
   const storedPage = c.state.missionSessions?.[missionId] ?? 0;
@@ -68,7 +70,23 @@ export default function FootbridgeSessionStage({ c, missionId, missionTitle, sce
 
     <div className="session-scene-grid">
       <div className="session-visual">
-        <img src={scene} alt={`${missionTitle} adventure scene`} />
+        {!sceneFailed ? (
+          <img
+            key={scene}
+            src={scene}
+            alt={`${missionTitle} adventure scene`}
+            decoding="async"
+            fetchPriority="high"
+            onLoad={() => setSceneFailed(false)}
+            onError={() => setSceneFailed(true)}
+          />
+        ) : (
+          <div className="session-image-fallback" role="status">
+            <span>🖼️</span>
+            <strong>Mission picture could not load</strong>
+            <button type="button" onClick={() => setSceneFailed(false)}>Try picture again</button>
+          </div>
+        )}
         <div className="session-scene-badge">{mode === 'intro' ? '🗺️ NEW MISSION' : mode === 'finish' ? '⭐ MISSION CHECKPOINT' : `🎯 PROJECT ACTION ${actionIndex}`}</div>
       </div>
       <div className="session-story-card">
