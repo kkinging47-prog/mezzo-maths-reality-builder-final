@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import { useState, type ReactElement } from 'react';
 import { MissionId } from '../footbridge/types';
 import { useFootbridgeProject } from '../footbridge/useFootbridgeProject';
 import FootbridgeMission1 from './footbridge/FootbridgeMission1';
@@ -9,6 +9,7 @@ import FootbridgeMission5 from './footbridge/FootbridgeMission5';
 import FootbridgeMission6 from './footbridge/FootbridgeMission6';
 import FootbridgeMission7 from './footbridge/FootbridgeMission7';
 import FootbridgeSessionStage from './footbridge/FootbridgeSessionStage';
+import FootbridgeThirtyQuestionPreview from './footbridge/FootbridgeThirtyQuestionPreview';
 import './footbridge-project-engine.css';
 import './footbridge-kid-adventure.css';
 import './footbridge-ux-fixes.css';
@@ -37,6 +38,7 @@ const MISSION_SCENES: Record<MissionId,string> = {
 
 export default function FootbridgeProjectEngineV2(){
   const c=useFootbridgeProject();
+  const [previewQuestions,setPreviewQuestions]=useState(false);
   const {state}=c;
   const s=state.scenario;
   const selectedSite=s.sites.find(site=>site.id===state.selectedSiteId);
@@ -51,6 +53,7 @@ export default function FootbridgeProjectEngineV2(){
         <h1>Can You Connect Adom & Nkabom?</h1>
         <p>Two communities are separated by a river. Use your maths, make smart choices and help them build a successful virtual footbridge.</p>
         <div className="hero-chips"><span>🔎 Explore</span><span>📏 Measure</span><span>🧮 Calculate</span><span>🛠️ Build</span><span>🎯 Test</span></div>
+        <button className="preview-launch" type="button" onClick={()=>setPreviewQuestions(true)}>🧪 Try the temporary 30-question test</button>
       </div>
       <div className="community-guides" aria-label="Your project guides">
         <div className="guide-character"><div className="guide-avatar">👧🏾</div><div><strong>Ama</strong><span>Adom school guide</span></div></div>
@@ -64,6 +67,7 @@ export default function FootbridgeProjectEngineV2(){
       <p>{SAFETY_NOTICE}</p>
     </details>
 
+    {previewQuestions ? <FootbridgeThirtyQuestionPreview onClose={()=>setPreviewQuestions(false)}/> : <>
     <div className="adventure-progress">
       <div className="progress-story"><span>YOUR BRIDGE ADVENTURE</span><strong>{c.completedCount} of 30 project actions completed</strong><small>{completedMissions} of 7 missions completed · your work saves automatically</small></div>
       <div className="bridge-progress-track" aria-label={`${c.progressPercent}% project complete`}><div style={{width:`${c.progressPercent}%`}}><span>🚶🏾</span></div></div>
@@ -96,6 +100,7 @@ export default function FootbridgeProjectEngineV2(){
     </FootbridgeSessionStage>
 
     <details className="project-notebook kid-notebook"><summary>📘 Open My Project Notebook</summary><div className="notebook-grid">{Object.entries(state.notebook).filter(([,entries])=>entries.length>0).map(([section,entries])=><article key={section}><h3>{friendlySection(section)}</h3>{entries.map((entry,index)=><p key={`${section}-${index}`}>{entry}</p>)}</article>)}{Object.values(state.notebook).every(entries=>entries.length===0)&&<p>Your discoveries, calculations and choices will appear here as you explore.</p>}</div></details>
+    </>}
   </section>;
 }
 
