@@ -2,6 +2,9 @@ import { useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, OrthographicCamera, Sky, Text } from '@react-three/drei';
 import * as THREE from 'three';
+import { useParkingPuzzle, type ParkingPuzzleController } from '../parking/useParkingPuzzle';
+import type { ParkingVehicle } from '../parking/trafficPuzzleEngine';
+import ParkingPuzzleControls from './ParkingPuzzleControls';
 
 type Props = { buildStage: number; feedback?: string };
 type V3 = [number, number, number];
@@ -338,7 +341,35 @@ function SmartCounter({ stage }: { stage: number }) {
   );
 }
 
-function ParkingLot({ stage }: { stage: number }) {
+function PuzzleVehicle3D({ vehicle, selected, onSelect }: { vehicle: ParkingVehicle; selected: boolean; onSelect: () => void }) {
+  const cell = 0.7;
+  const x = -2.1 + (vehicle.col + (vehicle.orientation === 'horizontal' ? vehicle.length / 2 : 0.5)) * cell;
+  const z = -3.1 + (vehicle.row + (vehicle.orientation === 'vertical' ? vehicle.length / 2 : 0.5)) * cell;
+  const width = (vehicle.orientation === 'horizontal' ? vehicle.length * cell : cell) - 0.11;
+  const depth = (vehicle.orientation === 'vertical' ? vehicle.length * cell : cell) - 0.11;
+  return <group position={[x, 0.28, z]} onPointerDown={(event) => { event.stopPropagation(); onSelect(); }}>
+    {selected ? <Box p={[0, -0.12, 0]} s={[width + .14, .045, depth + .14]} c="#facc15" /> : null}
+    <Box p={[0, 0, 0]} s={[width, .28, depth]} c={vehicle.color} />
+    <Box p={[0, .2, 0]} s={[width * .55, .18, depth * .55]} c={vehicle.goal ? '#bfdbfe' : '#e2e8f0'} />
+    <Text position={[0, .43, 0]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.1} color="#ffffff" anchorX="center">{vehicle.goal ? 'MEZZO' : vehicle.name}</Text>
+  </group>;
+}
+
+function InteractivePuzzleLot({ game }: { game: ParkingPuzzleController }) {
+  return <group>
+    <Box p={[0, 0.17, -1]} s={[4.55, .11, 4.55]} c="#334155" />
+    {Array.from({ length: 7 }, (_, i) => <group key={i}>
+      <Box p={[-2.1 + i * .7, .235, -1]} s={[.025, .025, 4.2]} c="#64748b" />
+      <Box p={[0, .235, -3.1 + i * .7]} s={[4.2, .025, .025]} c="#64748b" />
+    </group>)}
+    <Box p={[2.48, .22, -3.1 + (game.state.exitRow + .5) * .7]} s={[.72, .04, .58]} c="#22c55e" />
+    <Text position={[2.5, .3, -3.1 + (game.state.exitRow + .5) * .7]} rotation={[-Math.PI / 2, 0, 0]} fontSize={.13} color="#052e16" anchorX="center">EXIT</Text>
+    {game.state.vehicles.map(vehicle => <PuzzleVehicle3D key={vehicle.id} vehicle={vehicle} selected={game.selectedId === vehicle.id} onSelect={() => game.selectVehicle(vehicle.id)} />)}
+    <Text position={[0, .32, 1.48]} rotation={[-Math.PI / 2, 0, 0]} fontSize={.18} color="#0f172a" anchorX="center">{game.state.title} · {game.state.moves} moves</Text>
+  </group>;
+}
+
+function ParkingLot({ stage, game }: { stage: number; game?: ParkingPuzzleController }) {
   const parkedBefore = [0, 1, 2, 3, 4];
   const finalParked = [2, 3, 4, 5];
   return (
@@ -348,10 +379,10 @@ function ParkingLot({ stage }: { stage: number }) {
       <Box p={[0, 0.21, 0.8]} s={[12.9, 0.04, 0.16]} c="#facc15" />
       <Box p={[0, 0.21, -3]} s={[12.9, 0.04, 0.16]} c="#facc15" />
       <Box p={[6.55, 0.22, -1.1]} s={[0.18, 0.05, 4.45]} c="#facc15" />
-      {slotPositions.map(([x, z], index) => (
+      {stage < 6 && slotPositions.map(([x, z], index) => (
         <ParkingSlot key={index} x={x} z={z} index={index} occupied={(stage >= 6 ? finalParked : parkedBefore).includes(index)} stage={stage} />
       ))}
-      {stage >= 5 && (
+      {stage >= 5 && stage < 6 && (
         <>
           <ParkedCar slot={0} c="#0f766e" hideAfter={3.2} />
           <ParkedCar slot={1} c="#2563eb" hideAfter={7.1} />
@@ -361,7 +392,7 @@ function ParkingLot({ stage }: { stage: number }) {
           {stage >= 6 && <ParkedCar slot={5} c="#22c55e" showAfter={12.0} />}
         </>
       )}
-      {stage >= 6 && (
+      {stage >= 6 && game ? <InteractivePuzzleLot game={game} /> : stage >= 6 && (
         <>
           <MovingCar points={[[-4.9, -1.25], [-4.9, -2.85], [2.4, -2.85], [6.8, -2.3], [8.4, -1.4]]} start={0.8} duration={3.2} c="#0f766e" />
           <MovingCar points={[[-3.35, -1.25], [-3.35, -2.85], [1.5, -2.85], [6.8, -2.3], [8.4, -1.4]]} start={4.6} duration={3.1} c="#2563eb" />
@@ -379,7 +410,7 @@ function ParkingLot({ stage }: { stage: number }) {
   );
 }
 
-function CityWorld({ stage }: { stage: number }) {
+function CityWorld({ stage, game }: { stage: number; game?: ParkingPuzzleController }) {
   return (
     <group>
       <Box p={[0, -0.04, 0]} s={[22, 0.08, 15]} c="#7ed957" />
@@ -428,13 +459,14 @@ function CityWorld({ stage }: { stage: number }) {
           Attendant
         </Text>
       </group>
-      <ParkingLot stage={stage} />
+      <ParkingLot stage={stage} game={game} />
     </group>
   );
 }
 
 export default function SmartParking3DConstructionSiteV3({ buildStage, feedback }: Props) {
   const stage = clampStage(buildStage);
+  const game = useParkingPuzzle();
   return (
     <div className="bridge-3d-wrap smart-parking-v3-wrap" style={{ width: '100%' }}>
       <div className="bridge-3d-header">
@@ -451,7 +483,7 @@ export default function SmartParking3DConstructionSiteV3({ buildStage, feedback 
           <ambientLight intensity={0.86} />
           <hemisphereLight args={["#e0f2fe", "#bbf7d0", 1.05]} />
           <directionalLight position={[7, 12, 5]} intensity={1.75} castShadow shadow-mapSize-width={1024} shadow-mapSize-height={1024} />
-          <CityWorld stage={stage} />
+          <CityWorld stage={stage} game={stage >= 6 ? game : undefined} />
           <OrbitControls enablePan={false} minPolarAngle={0.74} maxPolarAngle={1.12} minZoom={58} maxZoom={110} target={[0, 0.15, -0.6]} />
         </Canvas>
       </div>
@@ -461,6 +493,7 @@ export default function SmartParking3DConstructionSiteV3({ buildStage, feedback 
           <span>{feedback || 'This hybrid isometric scene is bigger in the layout and uses original child-friendly mini-world assets.'}</span>
         </div>
       </div>
+      {stage >= 6 ? <div style={{ marginTop: '1rem' }}><ParkingPuzzleControls game={game} /></div> : null}
     </div>
   );
 }

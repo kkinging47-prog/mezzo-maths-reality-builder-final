@@ -10,6 +10,7 @@ import Irrigation2DConstructionSite from './Irrigation2DConstructionSite';
 import Irrigation3DConstructionSite from './Irrigation3DConstructionSite';
 import SmartParking2DConstructionSite from './SmartParking2DConstructionSite';
 import SmartParking3DConstructionSite from './SmartParking3DConstructionSiteV3';
+import SmartParkingVRConstructionSite from './SmartParkingVRConstructionSite';
 import FloodDrainage2DConstructionSite from './FloodDrainage2DConstructionSite';
 
 type VisualBuilderProps = {
@@ -45,6 +46,7 @@ export default function VisualBuilder({ project, completed, mode, feedback }: Vi
 
   if (project.id === 'smart-car-parking-system' && mode === '3d') return <SmartParking3DConstructionSite buildStage={completed} feedback={feedback} />;
   if (project.id === 'smart-car-parking-system' && mode === '2d') return <SmartParking2DConstructionSite buildStage={completed} feedback={feedback} />;
+  if (project.id === 'smart-car-parking-system' && mode === 'vr') return <SmartParkingVRConstructionSite buildStage={completed} feedback={feedback} />;
 
   if (project.id === 'flood-safe-road-drainage-upgrade' && mode === '2d') return <FloodDrainage2DConstructionSite buildStage={completed} feedback={feedback} />;
 

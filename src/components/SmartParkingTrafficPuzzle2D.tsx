@@ -1,77 +1,20 @@
-import { useMemo, useState } from 'react';
-import {
-  canMoveVehicle,
-  FIRST_PARKING_LEVEL,
-  isParkingPuzzleSolved,
-  moveVehicle,
-  ParkingPuzzleState,
-} from '../parking/trafficPuzzleEngine';
-
-const MOVE_QUESTIONS = [
-  { text: 'There are 24 spaces and 18 are occupied. How many are free?', options: ['4', '6', '8', '12'], answer: 1, skill: 'Subtraction' },
-  { text: 'Six rows contain 5 spaces each. How many spaces are there?', options: ['11', '25', '30', '35'], answer: 2, skill: 'Multiplication' },
-  { text: 'A parking area is 12 m by 8 m. What is its area?', options: ['20 m²', '40 m²', '80 m²', '96 m²'], answer: 3, skill: 'Area' },
-  { text: 'Three out of every four spaces are occupied. What percentage is occupied?', options: ['25%', '50%', '75%', '80%'], answer: 2, skill: 'Percentage' },
-  { text: 'A car travels 30 m in 6 seconds. What is its average speed?', options: ['4 m/s', '5 m/s', '6 m/s', '24 m/s'], answer: 1, skill: 'Speed' },
-  { text: 'Each sensor costs GH₵45. What is the cost of 4 sensors?', options: ['GH₵49', 'GH₵90', 'GH₵160', 'GH₵180'], answer: 3, skill: 'Money' },
-  { text: 'On a grid, moving from column 2 to column 5 is how many spaces?', options: ['2', '3', '5', '7'], answer: 1, skill: 'Coordinates' },
-  { text: 'A vehicle waits 2 minutes at each of 3 barriers. What is the total wait?', options: ['5 minutes', '6 minutes', '8 minutes', '9 minutes'], answer: 1, skill: 'Time' },
-];
-
-type PendingMove = { vehicleId: string; direction: -1 | 1 };
+import type { CSSProperties } from 'react';
+import { useParkingPuzzle } from '../parking/useParkingPuzzle';
+import ParkingPuzzleControls from './ParkingPuzzleControls';
 
 export default function SmartParkingTrafficPuzzle2D() {
-  const [state, setState] = useState<ParkingPuzzleState>(() => structuredClone(FIRST_PARKING_LEVEL));
-  const [selectedId, setSelectedId] = useState('mezzo');
-  const [pendingMove, setPendingMove] = useState<PendingMove>();
-  const [questionIndex, setQuestionIndex] = useState(0);
-  const [answerFeedback, setAnswerFeedback] = useState('');
-  const [correctAnswers, setCorrectAnswers] = useState(0);
-  const solved = isParkingPuzzleSolved(state);
-  const selected = state.vehicles.find(vehicle => vehicle.id === selectedId);
-  const question = MOVE_QUESTIONS[questionIndex % MOVE_QUESTIONS.length];
-  const availableMoves = useMemo(() => selected ? {
-    backward: canMoveVehicle(state, selected.id, -1),
-    forward: canMoveVehicle(state, selected.id, 1),
-  } : { backward: false, forward: false }, [selected, state]);
-
-  function requestMove(direction: -1 | 1) {
-    if (!selected || !canMoveVehicle(state, selected.id, direction) || solved) return;
-    setPendingMove({ vehicleId: selected.id, direction });
-    setAnswerFeedback('');
-  }
-
-  function answer(optionIndex: number) {
-    if (!pendingMove) return;
-    if (optionIndex !== question.answer) {
-      setAnswerFeedback('Not yet. Recheck the calculation—the vehicle remains in place.');
-      return;
-    }
-    setState(current => moveVehicle(current, pendingMove.vehicleId, pendingMove.direction));
-    setCorrectAnswers(current => current + 1);
-    setQuestionIndex(current => current + 1);
-    setAnswerFeedback('Correct! The vehicle movement has been unlocked.');
-    setPendingMove(undefined);
-  }
-
-  function reset() {
-    setState(structuredClone(FIRST_PARKING_LEVEL));
-    setSelectedId('mezzo');
-    setPendingMove(undefined);
-    setQuestionIndex(0);
-    setAnswerFeedback('');
-    setCorrectAnswers(0);
-  }
+  const game = useParkingPuzzle();
+  const { state, selectedId, selected, correctAnswers } = game;
 
   return <section className="traffic-puzzle" aria-label="Mezzo smart parking traffic puzzle">
     <header className="traffic-puzzle__header">
-      <div><span>PLAYABLE 2D PROTOTYPE · LEVEL 1</span><h3>Clear the Mezzo Car</h3><p>Select vehicles, solve the maths challenge and move the blue Mezzo car safely to the exit.</p></div>
+      <div><span>PLAYABLE 2D · LEVEL {game.levelIndex + 1} OF {game.levelCount}</span><h3>{state.title}</h3><p>{state.challenge}</p></div>
       <div className="traffic-puzzle__stats"><strong>{state.moves}</strong><span>moves</span><strong>{correctAnswers}</strong><span>maths unlocked</span></div>
     </header>
 
     <div className="traffic-puzzle__layout">
       <div className="traffic-puzzle__board-wrap">
-        <div className="traffic-puzzle__board" style={{ '--grid-size': state.gridSize } as React.CSSProperties}>
+        <div className="traffic-puzzle__board" style={{ '--grid-size': state.gridSize } as CSSProperties}>
           {Array.from({ length: state.gridSize * state.gridSize }, (_, index) => <i key={index} />)}
           <div className="traffic-puzzle__exit" style={{ gridRow: state.exitRow + 1 }}>EXIT</div>
           {state.vehicles.map(vehicle => <button
@@ -80,33 +23,18 @@ export default function SmartParkingTrafficPuzzle2D() {
             aria-label={`${vehicle.name}, ${vehicle.orientation}`}
             aria-pressed={selectedId === vehicle.id}
             className={`traffic-vehicle ${vehicle.goal ? 'goal' : ''} ${selectedId === vehicle.id ? 'selected' : ''}`}
-            onClick={() => setSelectedId(vehicle.id)}
+            onClick={() => game.selectVehicle(vehicle.id)}
             style={{
               '--vehicle-color': vehicle.color,
               gridColumn: `${vehicle.col + 1} / span ${vehicle.orientation === 'horizontal' ? vehicle.length : 1}`,
               gridRow: `${vehicle.row + 1} / span ${vehicle.orientation === 'vertical' ? vehicle.length : 1}`,
-            } as React.CSSProperties}
+            } as CSSProperties}
           ><span>{vehicle.orientation === 'horizontal' ? '🚗' : '🚙'}</span><small>{vehicle.goal ? 'MEZZO' : vehicle.name}</small></button>)}
         </div>
         <p className="traffic-puzzle__selected">Selected: <strong>{selected?.name}</strong> · moves {selected?.orientation === 'horizontal' ? 'left or right' : 'up or down'}</p>
       </div>
 
-      <aside className="traffic-puzzle__panel">
-        {solved ? <div className="traffic-puzzle__success"><span>🏆</span><h4>Traffic cleared!</h4><p>You used mathematics and spatial reasoning to guide the Mezzo car safely out in {state.moves} moves.</p><button type="button" onClick={reset}>Play again</button></div> : <>
-          <div className="traffic-puzzle__move-buttons">
-            <button type="button" disabled={!availableMoves.backward} onClick={() => requestMove(-1)}>{selected?.orientation === 'horizontal' ? '← Move left' : '↑ Move up'}</button>
-            <button type="button" disabled={!availableMoves.forward} onClick={() => requestMove(1)}>{selected?.orientation === 'horizontal' ? 'Move right →' : 'Move down ↓'}</button>
-          </div>
-          <p className="traffic-puzzle__tip">Hint: move the orange school bus downward twice, then move the blue Mezzo car towards the exit.</p>
-          {pendingMove && <div className="traffic-puzzle__question">
-            <span>{question.skill} · answer correctly to unlock this move</span>
-            <h4>{question.text}</h4>
-            <div>{question.options.map((option, index) => <button key={option} type="button" onClick={() => answer(index)}>{option}</button>)}</div>
-          </div>}
-          {answerFeedback && <p className={`traffic-puzzle__feedback ${answerFeedback.startsWith('Correct') ? 'correct' : 'wrong'}`}>{answerFeedback}</p>}
-          <button className="traffic-puzzle__reset" type="button" onClick={reset}>Reset level</button>
-        </>}
-      </aside>
+      <ParkingPuzzleControls game={game} />
     </div>
 
     <style>{`

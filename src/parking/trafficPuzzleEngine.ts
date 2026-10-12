@@ -12,26 +12,67 @@ export type ParkingVehicle = {
 };
 
 export type ParkingPuzzleState = {
+  id: string;
+  title: string;
+  challenge: string;
+  hint: string;
   gridSize: number;
   exitRow: number;
+  optimalMoves: number;
   vehicles: ParkingVehicle[];
   moves: number;
 };
 
-export const FIRST_PARKING_LEVEL: ParkingPuzzleState = {
-  gridSize: 6,
-  exitRow: 2,
-  moves: 0,
-  vehicles: [
-    { id: 'mezzo', name: 'Mezzo car', row: 2, col: 0, length: 2, orientation: 'horizontal', color: '#2563eb', goal: true },
-    { id: 'blocker', name: 'School bus', row: 1, col: 2, length: 3, orientation: 'vertical', color: '#f97316' },
-    { id: 'green', name: 'Green car', row: 0, col: 0, length: 2, orientation: 'horizontal', color: '#16a34a' },
-    { id: 'purple', name: 'Purple car', row: 0, col: 3, length: 2, orientation: 'horizontal', color: '#9333ea' },
-    { id: 'taxi', name: 'Yellow taxi', row: 4, col: 0, length: 2, orientation: 'horizontal', color: '#eab308' },
-    { id: 'cyan', name: 'Cyan car', row: 3, col: 4, length: 2, orientation: 'vertical', color: '#0891b2' },
-    { id: 'red', name: 'Red car', row: 5, col: 3, length: 2, orientation: 'horizontal', color: '#dc2626' },
-  ],
-};
+export const PARKING_LEVELS: ParkingPuzzleState[] = [
+  {
+    id: 'school-run', title: 'School Run', challenge: 'Clear the school bus and guide the Mezzo car to the exit.',
+    hint: 'Move the orange school bus down twice, then move the blue Mezzo car towards the exit.',
+    gridSize: 6, exitRow: 2, optimalMoves: 6, moves: 0,
+    vehicles: [
+      { id: 'mezzo', name: 'Mezzo car', row: 2, col: 0, length: 2, orientation: 'horizontal', color: '#2563eb', goal: true },
+      { id: 'blocker', name: 'School bus', row: 1, col: 2, length: 3, orientation: 'vertical', color: '#f97316' },
+      { id: 'green', name: 'Green car', row: 0, col: 0, length: 2, orientation: 'horizontal', color: '#16a34a' },
+      { id: 'purple', name: 'Purple car', row: 0, col: 3, length: 2, orientation: 'horizontal', color: '#9333ea' },
+      { id: 'taxi', name: 'Yellow taxi', row: 4, col: 0, length: 2, orientation: 'horizontal', color: '#eab308' },
+      { id: 'cyan', name: 'Cyan car', row: 3, col: 4, length: 2, orientation: 'vertical', color: '#0891b2' },
+      { id: 'red', name: 'Red car', row: 5, col: 3, length: 2, orientation: 'horizontal', color: '#dc2626' },
+    ],
+  },
+  {
+    id: 'market-rush', title: 'Market Rush', challenge: 'Rearrange the delivery lane before the Mezzo car can leave.',
+    hint: 'Move the yellow delivery car left, lower the orange van three times, then clear the exit lane.',
+    gridSize: 6, exitRow: 2, optimalMoves: 8, moves: 0,
+    vehicles: [
+      { id: 'mezzo', name: 'Mezzo car', row: 2, col: 0, length: 2, orientation: 'horizontal', color: '#2563eb', goal: true },
+      { id: 'blocker', name: 'Orange van', row: 1, col: 2, length: 2, orientation: 'vertical', color: '#f97316' },
+      { id: 'delivery', name: 'Delivery car', row: 3, col: 1, length: 2, orientation: 'horizontal', color: '#eab308' },
+      { id: 'green', name: 'Green car', row: 0, col: 0, length: 2, orientation: 'horizontal', color: '#16a34a' },
+      { id: 'purple', name: 'Purple car', row: 0, col: 3, length: 3, orientation: 'horizontal', color: '#9333ea' },
+      { id: 'cyan', name: 'Cyan car', row: 3, col: 4, length: 2, orientation: 'vertical', color: '#0891b2' },
+      { id: 'red', name: 'Red car', row: 5, col: 0, length: 2, orientation: 'horizontal', color: '#dc2626' },
+    ],
+  },
+  {
+    id: 'stadium-exit', title: 'Stadium Exit', challenge: 'Use the fewest safe moves to open the busy event exit.',
+    hint: 'Shift the amber car left first, lower the long purple bus, then open the Mezzo lane.',
+    gridSize: 6, exitRow: 2, optimalMoves: 8, moves: 0,
+    vehicles: [
+      { id: 'mezzo', name: 'Mezzo car', row: 2, col: 0, length: 2, orientation: 'horizontal', color: '#2563eb', goal: true },
+      { id: 'blocker', name: 'Event bus', row: 0, col: 2, length: 3, orientation: 'vertical', color: '#9333ea' },
+      { id: 'amber', name: 'Amber car', row: 3, col: 1, length: 2, orientation: 'horizontal', color: '#f59e0b' },
+      { id: 'green', name: 'Green car', row: 0, col: 0, length: 2, orientation: 'horizontal', color: '#16a34a' },
+      { id: 'cyan', name: 'Cyan car', row: 0, col: 4, length: 2, orientation: 'vertical', color: '#0891b2' },
+      { id: 'red', name: 'Red car', row: 4, col: 0, length: 2, orientation: 'horizontal', color: '#dc2626' },
+      { id: 'lime', name: 'Lime car', row: 5, col: 3, length: 2, orientation: 'horizontal', color: '#65a30d' },
+    ],
+  },
+];
+
+export const FIRST_PARKING_LEVEL = PARKING_LEVELS[0];
+
+export function createParkingLevel(levelIndex: number) {
+  return structuredClone(PARKING_LEVELS[levelIndex] ?? PARKING_LEVELS[0]);
+}
 
 export function occupiedCells(vehicle: ParkingVehicle) {
   return Array.from({ length: vehicle.length }, (_, offset) => ({

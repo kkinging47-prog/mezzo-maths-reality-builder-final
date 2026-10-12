@@ -1,0 +1,23 @@
+import type { ParkingPuzzleController } from '../parking/useParkingPuzzle';
+
+export default function ParkingPuzzleControls({ game, compact = false }: { game: ParkingPuzzleController; compact?: boolean }) {
+  const { selected, availableMoves, requestMove, pendingMove, question, answer, answerFeedback, solved, state } = game;
+  const backwardLabel = selected.orientation === 'horizontal' ? '← Move left' : '↑ Move up';
+  const forwardLabel = selected.orientation === 'horizontal' ? 'Move right →' : 'Move down ↓';
+  return <aside className={`parking-controls ${compact ? 'compact' : ''}`} aria-label="Parking puzzle controls">
+    <div className="parking-level-tabs" aria-label="Choose parking level">
+      {Array.from({ length: game.levelCount }, (_, index) => <button key={index} type="button" className={game.levelIndex === index ? 'active' : ''} onClick={() => game.loadLevel(index)}>Level {index + 1}</button>)}
+    </div>
+    {solved ? <div className="parking-success"><span>🏆</span><h4>Traffic cleared!</h4><p>You completed {state.title} in {state.moves} moves. Target: {state.optimalMoves}.</p>{game.levelIndex < game.levelCount - 1 ? <button type="button" onClick={game.nextLevel}>Start next level</button> : <button type="button" onClick={() => game.loadLevel(0)}>Replay level pack</button>}</div> : <>
+      <div className="parking-selected"><span>Selected vehicle</span><strong>{selected.name}</strong></div>
+      <div className="parking-move-buttons"><button type="button" disabled={!availableMoves.backward} onClick={() => requestMove(-1)}>{backwardLabel}</button><button type="button" disabled={!availableMoves.forward} onClick={() => requestMove(1)}>{forwardLabel}</button></div>
+      <p className="parking-hint">💡 {state.hint}</p>
+      {pendingMove ? <div className="parking-question"><span>{question.skill} · solve to unlock movement</span><h4>{question.text}</h4><div>{question.options.map((option, index) => <button key={option} type="button" onClick={() => answer(index)}>{option}</button>)}</div></div> : null}
+      {answerFeedback ? <p className={`parking-feedback ${answerFeedback.startsWith('Correct') ? 'correct' : 'wrong'}`} role="status">{answerFeedback}</p> : null}
+      <button className="parking-reset" type="button" onClick={game.reset}>Reset level</button>
+    </>}
+    <style>{`
+      .parking-controls{display:grid;align-content:start;gap:.8rem;padding:1rem;border-radius:18px;background:#fff;border:1px solid #dbeafe;color:#0f172a}.parking-level-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:.35rem}.parking-level-tabs button{border:1px solid #bfdbfe;border-radius:9px;padding:.48rem;background:#eff6ff;color:#1e3a8a;font-weight:900;cursor:pointer}.parking-level-tabs button.active{background:#1d4ed8;color:#fff}.parking-selected{display:flex;justify-content:space-between;gap:.5rem;padding:.65rem;border-radius:10px;background:#f8fafc;color:#475569}.parking-selected strong{color:#0f172a}.parking-move-buttons{display:grid;grid-template-columns:1fr 1fr;gap:.55rem}.parking-move-buttons button,.parking-question button,.parking-success button{border:0;border-radius:12px;padding:.75rem;background:#1d4ed8;color:#fff;font-weight:900;cursor:pointer}.parking-move-buttons button:disabled{background:#cbd5e1;color:#64748b;cursor:not-allowed}.parking-hint{margin:0;padding:.7rem;border-radius:12px;background:#fef9c3;color:#713f12;font-size:.82rem;font-weight:800}.parking-question{padding:.8rem;border-radius:14px;background:#eff6ff;border:2px solid #93c5fd}.parking-question>span{font-size:.68rem;color:#1d4ed8;font-weight:950;text-transform:uppercase}.parking-question h4{margin:.35rem 0 .7rem;line-height:1.35}.parking-question>div{display:grid;grid-template-columns:1fr 1fr;gap:.45rem}.parking-question button{background:#fff;color:#1e3a8a;border:2px solid #bfdbfe}.parking-feedback{margin:0;padding:.7rem;border-radius:11px;font-weight:900}.parking-feedback.correct{background:#dcfce7;color:#166534}.parking-feedback.wrong{background:#fee2e2;color:#991b1b}.parking-reset{justify-self:start;border:1px solid #cbd5e1;border-radius:10px;padding:.55rem .75rem;background:#f8fafc;color:#334155;font-weight:800;cursor:pointer}.parking-success{text-align:center;padding:1rem;border-radius:15px;background:#f0fdf4;border:2px solid #86efac}.parking-success>span{font-size:3rem}.parking-success h4{font-size:1.35rem;margin:.4rem 0;color:#166534}.parking-success p{color:#365e42;line-height:1.5}.parking-success button{background:#15803d}.parking-controls.compact{padding:.75rem}.parking-controls.compact .parking-hint{font-size:.75rem}@media(max-width:440px){.parking-question>div{grid-template-columns:1fr}}
+    `}</style>
+  </aside>;
+}
