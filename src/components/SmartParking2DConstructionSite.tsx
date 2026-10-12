@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import SmartParkingTrafficPuzzle2D from './SmartParkingTrafficPuzzle2D';
 
 type SmartParking2DConstructionSiteProps = {
   buildStage: number;
@@ -228,6 +229,7 @@ export default function SmartParking2DConstructionSite({ buildStage, feedback }:
       <style>{`
         .parking-site{font-family:Inter,system-ui,sans-serif;color:#0f172a}.parking-site__header{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;margin-bottom:1rem}.parking-site__eyebrow{margin:0 0 .35rem;color:#0369a1;font-weight:900;text-transform:uppercase;letter-spacing:.08em;font-size:.78rem}.parking-site h2{margin:.1rem 0 .35rem;font-size:clamp(1.35rem,3vw,2.05rem)}.parking-site__header p:last-child{margin:0;max-width:56rem;color:#334155;font-weight:700}.parking-site__status{background:#e0f2fe;border:2px solid #38bdf8;color:#075985;border-radius:999px;padding:.75rem 1rem;font-weight:900;white-space:nowrap}.parking-site__canvas{background:#e0f2fe;border:4px solid #bae6fd;border-radius:24px;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(15,23,42,.08)}.parking-site svg{display:block;width:100%;height:auto;min-height:360px}.parking-site__footer{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-top:1rem}.parking-site__feedback{margin:0;flex:1;background:#ecfeff;border:2px solid #67e8f9;color:#155e75;border-radius:18px;padding:1rem;font-weight:900}.parking-site__feedback.complete{background:#f0fdf4;border-color:#22c55e;color:#166534}.parking-test-btn{border:0;border-radius:18px;background:#0f172a;color:white;font-weight:900;padding:1rem 1.15rem;box-shadow:0 12px 24px rgba(15,23,42,.18);cursor:pointer}.parking-test-btn:hover{transform:translateY(-1px)}@media(max-width:720px){.parking-site__header,.parking-site__footer{flex-direction:column;align-items:stretch}.parking-site__status{border-radius:16px}.parking-site svg{min-height:280px}}
       `}</style>
+      {stage >= 6 && <SmartParkingTrafficPuzzle2D />}
     </div>
   );
 }
